@@ -25,7 +25,7 @@ jobs:
       - name: Generate pdf documents
         uses: xu-cheng/latex-action@v2
         with:
-          root_file: *.tex
+          root_file: "*.tex"
           glob_root_file: true
           args: -file-line-error -halt-on-error -interaction=nonstopmode
           extra_fonts: |
@@ -39,5 +39,5 @@ jobs:
       - name: Store artifacts
         uses: actions/upload-artifact@v3
         with:
-          path: talk*.pdf
+          path: "*.pdf"
           if-no-files-found: error
