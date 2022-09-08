@@ -23,6 +23,12 @@
 \addbibresource{ragonneau-bib/strings.bib}
 \addbibresource{ragonneau-bib/optim.bib}
 
+% Dedicated mathematical macros
+\newcommand{\con}[1]{c_{#1}}
+\newcommand{\ieq}{\mathcal{E}}
+\newcommand{\iub}{\mathcal{I}}
+\newcommand{\obj}{f}
+
 \title{Model-Based DFO Methods and Software}
 \subtitle{Talk no.\ 1 \textemdash\ Overview of DFO}
 \author[Tom M. Ragonneau]{Tom M. Ragonneau (\email{tom.ragonneau@polyu.edu.hk})}
@@ -51,7 +57,7 @@
 \begin{frame}
     \frametitle{What is DFO?}
 
-    Derivative-free optimization (DFO) aims at minimizing an objective function~$f$ \alert{using function values} but not derivatives.
+    Derivative-free optimization (DFO) aims at minimizing an objective function~$\obj$ \alert{using function values} but not derivatives.
     The objective function can be a \alert{black box}, resulting from \alert{experiments} or \alert{complex simulations} (PDE, \dots).
 
     \bigskip
@@ -62,8 +68,8 @@
             \draw[rounded corners,fill=black] (2,-0.75) rectangle (5,0.75);
             \draw[thick,-latex] (5,0) -- (7,0);
             \node[left] at (0,0) {$x \in \R^n$};
-            \node at (3.5,0) {\textcolor{white}{$f : \R^n \to \R$}};
-            \node[right] at (7,0) {$f(x)$};
+            \node at (3.5,0) {\textcolor{white}{$\obj : \R^n \to \R$}};
+            \node[right] at (7,0) {$\obj(x)$};
         \end{tikzpicture}
     \end{center}
 
@@ -71,7 +77,7 @@
 
     \begin{block}{}
         \begin{enumerate}
-            \item The function~$f$ may be smooth, but derivatives \alert{cannot be evaluated}.
+            \item The function~$\obj$ may be smooth, but derivatives \alert{cannot be evaluated}.
             \item Each objective function evaluation is \alert{expensive}.
             \item The complexity measure is the \alert{number of function evaluations}.
         \end{enumerate}
@@ -98,7 +104,7 @@
                     zmax=55,%
                     xlabel={$x_1$},%
                     ylabel={$x_2$},%
-                    zlabel={$f(x_1, x_2)$},%
+                    zlabel={$\obj(x_1, x_2)$},%
                 ]
                     \addplot3[%
                         domain=-5:5,%
@@ -123,7 +129,7 @@
                     zmax=55,%
                     xlabel={$x_1$},%
                     ylabel={$x_2$},%
-                    zlabel={$f(x_1, x_2)$},%
+                    zlabel={$\obj(x_1, x_2)$},%
                 ]
                     \addplot3[%
                         domain=-5:5,%
@@ -138,10 +144,58 @@
     
 \end{frame}
 
+\begin{frame}
+    \frametitle{Mathematical formulation}
+
+    The problems we consider are of the form
+    \begin{align*}
+        \min_{x \in \R^n}   & \quad \obj(x)\\
+        \mathrm{s.t.}       & \quad \con{i}(x) \le 0, ~ i \in \iub,\\
+                            & \quad \con{i}(x) = 0, ~ i \in \ieq,
+    \end{align*}
+    where~$\obj : \R^n \to \R$ is the \alert{objective function} and~$\con{i} : \R^n \to \R$ are the \alert{constraint functions} for~$i \in \iub \cup \ieq$, with~$\iub \cap \ieq = \emptyset$.
+
+    \bigskip
+
+    \begin{block}{}
+        \begin{enumerate}
+            \item The \alert{feasible set} of this problem is
+            \begin{equation*}
+                \Omega = \set{x \in \R^n : \con{i}(x) \le 0, ~ i \in \iub ~ \mathrm{and} ~ \con{i}(x) = 0, ~ i \in \ieq}
+            \end{equation*}
+            \item The derivatives of~$\obj$ and~$\con{i}$, with~$i \in \iub \cup \ieq$, are \alert{unknown}.
+            \item \alert{No structure} of the problem (e.g., convexity) is assumed.
+        \end{enumerate}
+    \end{block}
+\end{frame}
+
 \section{Examples of applications}
 
 \begin{frame}
-    \frametitle{Title}
+    \frametitle{Examples of DFO problems I}
+
+    \begin{block}{Stability of the Gaussian elimination~\parencite{Higham_1993}}
+        Given a nonzero matrix~$A \in \R^{n \times n}$, denote by~$a_{i, j}^{(k)}$ the~$(i, j)$th component of the~$k$th matrix of the \alert{Gaussian elimination with partial pivoting}.
+        The \alert{stability} of the Gaussian elimination is determined by the \alert{growth factor} of~$A$, given by
+        \begin{equation*}
+            \rho_n(A) = \frac{\max_{i, j, k} \abs{a_{i, j}^{(k)}}}{\max_{i, j} \abs{a_{i, j}}}.
+        \end{equation*}
+        By solving
+        \begin{equation*}
+            \max_{A \in \R^{n \times n}} \rho_n(A),
+        \end{equation*}
+        we can get insights about the \alert{worst-case scenario} and obtain a starting point for \alert{theoretical analyses}.
+    \end{block}
+
+    \bigskip
+
+    What is~\alert{$\nabla \rho_n$}? Does it even exist?
+\end{frame}
+
+\begin{frame}
+    \frametitle{Examples of DFO problems II}
+
+    To do.
 \end{frame}
 
 \section{Optimality conditions for smooth optimization}

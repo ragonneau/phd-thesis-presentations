@@ -13,7 +13,7 @@
 %
 % The Current Maintainer of this work is Tom M. Ragonneau.
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{polyu-presentation}[2022/09/06 PolyU presentation document class]
+\ProvidesClass{polyu-presentation}[2022/09/08 PolyU presentation document class]
 
 % Load beamer class as basis
 \PassOptionsToPackage{usenames,dvipsnames}{xcolor}
@@ -61,6 +61,14 @@
 \RequirePackage{amssymb}
 \RequirePackage{dsfont}
 \newcommand{\R}{\mathds{R}}
+\newcommand{\abs}[2][]{#1\lvert#2#1\rvert}
+\newcommand{\ceil}[2][]{#1\lceil#2#1\rceil}
+\newcommand{\floor}[2][]{#1\lfloor#2#1\rfloor}
+\newcommand{\negp}[2][]{#1[#2#1]_-}
+\newcommand{\norm}[2][]{#1\lVert#2#1\rVert}
+\newcommand{\posp}[2][]{#1[#2#1]_+}
+\newcommand{\set}[2][]{#1\{#2#1\}}
+\newcommand{\inner}[2][]{#1\langle#2#1\rangle}
 
 % TikZ
 \RequirePackage{tikz}
