@@ -55,6 +55,22 @@
     BoldFont=*-Bold,%
 ]
 
+% Mathematics
+\RequirePackage{amsmath}
+\RequirePackage{amsfonts}
+\RequirePackage{amssymb}
+\RequirePackage{dsfont}
+\newcommand{\R}{\mathds{R}}
+
+% TikZ
+\RequirePackage{tikz}
+\RequirePackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepgfplotslibrary{external}
+\tikzexternalize[%
+    prefix=figures/,%
+]
+
 % Bibliography information processing
 \usepackage[%
     style=authoryear-comp,%

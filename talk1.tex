@@ -26,7 +26,9 @@
 \title{Model-Based DFO Methods and Software}
 \subtitle{Talk no.\ 1 \textemdash\ Overview of DFO}
 \author[Tom M. Ragonneau]{Tom M. Ragonneau (\email{tom.ragonneau@polyu.edu.hk})}
-\institute[AMA PolyU]{
+\institute[PolyU AMA]{
+    Supervised by Dr.\ Zaikun Zhang (\email{zaikun.zhang@polyu.edu.hk})\\
+    Co-supervised by Prof.\ Xiaojun Chen (\email{maxjchen@polyu.edu.hk})\and
     Department of Applied Mathematics\\
     The Hong Kong Polytechnic University
 }
@@ -47,7 +49,93 @@
 \section{Introduction to DFO}
 
 \begin{frame}
-    \frametitle{Title}
+    \frametitle{What is DFO?}
+
+    Derivative-free optimization (DFO) aims at minimizing an objective function~$f$ \alert{using function values} but not derivatives.
+    The objective function can be a \alert{black box}, resulting from \alert{experiments} or \alert{complex simulations} (PDE, \dots).
+
+    \bigskip
+
+    \begin{center}
+        \begin{tikzpicture}
+            \draw[thick,-latex] (0,0) -- (2,0);
+            \draw[rounded corners,fill=black] (2,-0.75) rectangle (5,0.75);
+            \draw[thick,-latex] (5,0) -- (7,0);
+            \node[left] at (0,0) {$x \in \R^n$};
+            \node at (3.5,0) {\textcolor{white}{$f : \R^n \to \R$}};
+            \node[right] at (7,0) {$f(x)$};
+        \end{tikzpicture}
+    \end{center}
+
+    \bigskip
+
+    \begin{block}{}
+        \begin{enumerate}
+            \item The function~$f$ may be smooth, but derivatives \alert{cannot be evaluated}.
+            \item Each objective function evaluation is \alert{expensive}.
+            \item The complexity measure is the \alert{number of function evaluations}.
+        \end{enumerate}
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Fairy tale vs.\ reality}
+
+    \alert<2>{The reality} is often more complex than \alert<1>{the theory}.
+
+    \bigskip
+    
+    \only<1>{
+        \begin{center}
+            \begin{tikzpicture}
+                \begin{axis}[%
+                    colormap/viridis,%
+                    xmin=-5,%
+                    xmax=5,%
+                    ymin=-5,%
+                    ymax=5,%
+                    zmin=-5,%
+                    zmax=55,%
+                    xlabel={$x_1$},%
+                    ylabel={$x_2$},%
+                    zlabel={$f(x_1, x_2)$},%
+                ]
+                    \addplot3[%
+                        domain=-5:5,%
+                        domain y=-5:5,%
+                        samples=60,%
+                        surf,%
+                    ]{x^2+sin(250*x)+y^2+sin(250*y)};
+                \end{axis}
+            \end{tikzpicture}
+        \end{center}
+    }
+    \only<2>{
+        \begin{center}
+            \begin{tikzpicture}
+                \begin{axis}[%
+                    colormap/viridis,%
+                    xmin=-5,%
+                    xmax=5,%
+                    ymin=-5,%
+                    ymax=5,%
+                    zmin=-5,%
+                    zmax=55,%
+                    xlabel={$x_1$},%
+                    ylabel={$x_2$},%
+                    zlabel={$f(x_1, x_2)$},%
+                ]
+                    \addplot3[%
+                        domain=-5:5,%
+                        domain y=-5:5,%
+                        samples=60,%
+                        surf,%
+                    ]{x^2+sin(250*x)+y^2+sin(250*y)+rand};
+                \end{axis}
+            \end{tikzpicture}
+        \end{center}
+    }
+    
 \end{frame}
 
 \section{Examples of applications}

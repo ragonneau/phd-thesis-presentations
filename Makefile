@@ -13,7 +13,7 @@
 #
 # The Current Maintainer of this work is Tom M. Ragonneau.
 LC := latexmk
-LCFLAGS := -file-line-error -halt-on-error -interaction=nonstopmode
+LCFLAGS := -file-line-error -halt-on-error -interaction=nonstopmode -shell-escape
 
 SRC = $(wildcard talk*.tex)
 OBJ = $(basename $(SRC))
@@ -21,8 +21,10 @@ OBJ = $(basename $(SRC))
 main: $(OBJ)
 
 %: %.tex
+	mkdir -p figures
 	$(LC) $(LCFLAGS) $^
 
 .PHONY: clean
 clean:
 	$(LC) -c
+	find . -regex ".*-figure[0-9]*\..*" -type f -exec rm -f "{}" ";"
