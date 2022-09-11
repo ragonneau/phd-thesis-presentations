@@ -59,8 +59,11 @@
 \RequirePackage{amsmath}
 \RequirePackage{amsfonts}
 \RequirePackage{amssymb}
+\RequirePackage{mathtools}
 \RequirePackage{dsfont}
+\RequirePackage{empheq}
 \newcommand{\R}{\mathds{R}}
+\newcommand{\T}{\mathsf{T}}
 \newcommand{\abs}[2][]{#1\lvert#2#1\rvert}
 \newcommand{\ceil}[2][]{#1\lceil#2#1\rceil}
 \newcommand{\floor}[2][]{#1\lfloor#2#1\rfloor}
@@ -73,32 +76,69 @@
 % TikZ
 \RequirePackage{tikz}
 \RequirePackage{pgfplots}
+\RequirePackage{pgfplotstable}
+\RequirePackage{makecell}
+\usetikzlibrary{patterns}
 \pgfplotsset{compat=1.18}
 \usepgfplotslibrary{external}
+\pgfplotscreateplotcyclelist{profiles}{%
+    thick,mark=none,NavyBlue,solid\\%
+    thick,mark=none,BurntOrange,dashed\\%
+    thick,mark=none,OliveGreen,dotted\\%
+    thick,mark=none,BrickRed,dashdotted\\%
+    thick,mark=none,Purple,densely dashed\\%
+    thick,mark=none,Mahogan,densely dashed\\%
+    thick,mark=none,Rhodamine,densely dashdotted\\%
+    thick,mark=none,Gray,loosely dashed\\%
+    thick,mark=none,LimeGreen,loosely dotted\\%
+    thick,mark=none,JungleGreen,loosely dashdotted\\%
+}
+\pgfplotsset{%
+    every axis/.append style={%
+        label style={font=\footnotesize},%
+        legend cell align=left,%
+        legend style={%
+            rounded corners,%
+            thick,%
+            draw=black!15,%
+            % fill opacity=0.8,%
+            % draw opacity=1,%
+            % text opacity=1,%
+            font=\scriptsize,%
+        },%
+        tick label style={font=\footnotesize},%
+    },%
+}
+\pgfkeys{/pgf/images/include external/.code=\includegraphics{#1}}
 \tikzexternalize[%
     prefix=figures/,%
 ]
+
+% Set up SI units
+\RequirePackage{siunitx}
+\sisetup{%
+    group-separator={,},%
+}
 
 % Bibliography information processing
 \usepackage[%
     style=authoryear-comp,%
     sorting=nyt,%
-    maxnames=2,%
     sortcites=false,%
 ]{biblatex}
+\setbeamertemplate{bibliography item}[default]
 \defbibenvironment{bibliography}{%
 	\list{}{%
         \settowidth\labelwidth{\usebeamertemplate{bibliography item}}%
         \setlength\leftmargin{\labelwidth}%
-        \setlength\itemindent{-\leftmargin}%
-        \addtolength\leftmargin{\leftmargin}%
+        % \setlength\itemindent{-\leftmargin}%
+        % \addtolength\leftmargin{\leftmargin}%
         \setlength\labelsep{\biblabelsep}%
         \addtolength\leftmargin{\labelsep}%
         \setlength\bibitemsep{\itemsep}%
         \setlength\parsep{\bibparsep}%
 	}%
 }{\endlist}{\item}
-\setbeamertemplate{bibliography item}[default]
 \DeclareNameAlias{author}{family-given}
 
 % Place a partial table of contents at the beginning of each section

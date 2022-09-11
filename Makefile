@@ -21,10 +21,9 @@ OBJ = $(basename $(SRC))
 main: $(OBJ)
 
 %: %.tex
-	mkdir -p figures
 	$(LC) $(LCFLAGS) $^
 
 .PHONY: clean
 clean:
 	$(LC) -c
-	find . -regex ".*-figure[0-9]*\..*" -type f -exec rm -f "{}" ";"
+	find . -regex ".*-figure[0-9]*.*\..*" -type f -exec rm -f "{}" ";"

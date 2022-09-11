@@ -27,7 +27,26 @@
 \newcommand{\con}[1]{c_{#1}}
 \newcommand{\ieq}{\mathcal{E}}
 \newcommand{\iub}{\mathcal{I}}
+\newcommand{\lag}{\mathcal{L}}
 \newcommand{\obj}{f}
+
+% Performance and data profiles
+\usepackage{xstring}
+\newcommand{\drawprofiles}[4]{%
+    \def\selectsolvers{#2}%
+    \def\selectcsv{figures/#3}%
+    \def\selectprofile{#4}%
+    \ifthenelse{\equal{#1}{performance}}{%
+        \def\selectxlabel{$\log_2(\alpha)$}%
+        \def\selectylabel{Performance profiles~$\rho_s(\alpha)$}%
+    }{%
+        \def\selectxlabel{Number of simplex gradients~$\alpha$}%
+        \def\selectylabel{Data profiles~$d_s(\alpha)$}%
+    }
+    \input{figures/profiles.tex}%
+}
+\newcommand{\drawperformanceprofiles}[3]{\drawprofiles{performance}{#1}{#2}{#3}}
+\newcommand{\drawdataprofiles}[3]{\drawprofiles{data}{#1}{#2}{#3}}
 
 \title{Model-Based DFO Methods and Software}
 \subtitle{Talk no.\ 1 \textemdash\ Overview of DFO}
@@ -91,57 +110,39 @@
 
     \bigskip
     
-    \only<1>{
-        \begin{center}
-            \begin{tikzpicture}
-                \begin{axis}[%
-                    colormap/viridis,%
-                    xmin=-5,%
-                    xmax=5,%
-                    ymin=-5,%
-                    ymax=5,%
-                    zmin=-5,%
-                    zmax=55,%
-                    xlabel={$x_1$},%
-                    ylabel={$x_2$},%
-                    zlabel={$\obj(x_1, x_2)$},%
-                ]
+    \begin{center}
+        \begin{tikzpicture}
+            \begin{axis}[%
+                colormap/viridis,%
+                xmin=-5,%
+                xmax=5,%
+                ymin=-5,%
+                ymax=5,%
+                zmin=-5,%
+                zmax=55,%
+                xlabel={$x_1$},%
+                ylabel={$x_2$},%
+                zlabel={$\obj(x)$},%
+            ]
+                \only<1>{
                     \addplot3[%
                         domain=-5:5,%
                         domain y=-5:5,%
                         samples=60,%
                         surf,%
                     ]{x^2+sin(250*x)+y^2+sin(250*y)};
-                \end{axis}
-            \end{tikzpicture}
-        \end{center}
-    }
-    \only<2>{
-        \begin{center}
-            \begin{tikzpicture}
-                \begin{axis}[%
-                    colormap/viridis,%
-                    xmin=-5,%
-                    xmax=5,%
-                    ymin=-5,%
-                    ymax=5,%
-                    zmin=-5,%
-                    zmax=55,%
-                    xlabel={$x_1$},%
-                    ylabel={$x_2$},%
-                    zlabel={$\obj(x_1, x_2)$},%
-                ]
+                }
+                \only<2>{
                     \addplot3[%
                         domain=-5:5,%
                         domain y=-5:5,%
                         samples=60,%
                         surf,%
                     ]{x^2+sin(250*x)+y^2+sin(250*y)+rand};
-                \end{axis}
-            \end{tikzpicture}
-        \end{center}
-    }
-    
+                }
+            \end{axis}
+        \end{tikzpicture}
+    \end{center}
 \end{frame}
 
 \begin{frame}
@@ -150,10 +151,10 @@
     The problems we consider are of the form
     \begin{align*}
         \min_{x \in \R^n}   & \quad \obj(x)\\
-        \mathrm{s.t.}       & \quad \con{i}(x) \le 0, ~ i \in \iub,\\
+        \text{s.t.}         & \quad \con{i}(x) \le 0, ~ i \in \iub,\\
                             & \quad \con{i}(x) = 0, ~ i \in \ieq,
     \end{align*}
-    where~$\obj : \R^n \to \R$ is the \alert{objective function} and~$\con{i} : \R^n \to \R$ are the \alert{constraint functions} for~$i \in \iub \cup \ieq$, with~$\iub \cap \ieq = \emptyset$.
+    where~$\obj : \R^n \to \R$ is the \alert{objective function} and~$\con{i} : \R^n \to \R$ are the \alert{constraint functions}, with~$i \in \iub \cup \ieq$.
 
     \bigskip
 
@@ -163,7 +164,7 @@
             \begin{equation*}
                 \Omega = \set{x \in \R^n : \con{i}(x) \le 0, ~ i \in \iub ~ \mathrm{and} ~ \con{i}(x) = 0, ~ i \in \ieq}
             \end{equation*}
-            \item The derivatives of~$\obj$ and~$\con{i}$, with~$i \in \iub \cup \ieq$, are \alert{unknown}.
+            \item The derivatives of~$\obj$ and~$\con{i}$ are \alert{unknown}.
             \item \alert{No structure} of the problem (e.g., convexity) is assumed.
         \end{enumerate}
     \end{block}
@@ -175,10 +176,10 @@
     \frametitle{Examples of DFO problems I}
 
     \begin{block}{Stability of the Gaussian elimination~\parencite{Higham_1993}}
-        Given a nonzero matrix~$A \in \R^{n \times n}$, denote by~$a_{i, j}^{(k)}$ the~$(i, j)$th component of the~$k$th matrix of the \alert{Gaussian elimination with partial pivoting}.
+        Given a nonzero matrix~$A \in \R^{n \times n}$, denote by~$A^{(k)}$ the~$k$th matrix of the \alert{Gaussian elimination}.
         The \alert{stability} of the Gaussian elimination is determined by the \alert{growth factor} of~$A$, given by
         \begin{equation*}
-            \rho_n(A) = \frac{\max_{i, j, k} \abs{a_{i, j}^{(k)}}}{\max_{i, j} \abs{a_{i, j}}}.
+            \rho_n(A) = \frac{1}{\norm{A}_{\max}} \max_{0 \le k \le n - 1} \norm{A^{(k)}}_{\max}.
         \end{equation*}
         By solving
         \begin{equation*}
@@ -195,27 +196,300 @@
 \begin{frame}
     \frametitle{Examples of DFO problems II}
 
-    To do.
+	\begin{figure}
+		\centering
+		\begin{tikzpicture}
+			\uncover<2>{
+				\draw[pattern=north east lines,pattern color=DarkOrchid!25,rounded corners] (8,3) rectangle (11,4.5);
+			}
+			\draw[thick,rounded corners] (0,0) rectangle (3,1.5);
+			\draw[thick,rounded corners] (0,4) rectangle (3,5.5);
+			\draw[thick,rounded corners] (4,2) rectangle (7,3.5);
+			\draw[thick,rounded corners] (8,1) rectangle (11,2.5);
+			\draw[thick,rounded corners] (8,3) rectangle (11,4.5);
+			\draw[thick,-latex] (3,1) -- (5.5,1) -- (5.5,2);
+			\draw[thick] (3,0.5) -- (7.5,0.5) -- (7.5,2.5) -- (7,2.5);
+			\draw[thick,-latex] (7.5,1.75) -- (8,1.75);
+			\draw[thick] (3,4.75) -- (7.5,4.75) -- (7.5,3) -- (7,3);
+			\draw[thick,-latex] (7.5,3.75) -- (8,3.75);
+			\node at (0.6,0.75) {\includegraphics[height=0.8cm]{images/machine-learning/presentation.png}};
+			\node at (0.6,4.75) {\includegraphics[height=0.8cm]{images/machine-learning/checklist.png}};
+			\node at (4.6,2.75) {\includegraphics[height=0.8cm]{images/machine-learning/deep-learning.png}};
+			\node at (8.6,1.75) {\includegraphics[height=0.8cm]{images/machine-learning/good.png}};
+			\node at (8.6,3.75) {\includegraphics[height=0.8cm]{images/machine-learning/result.png}};
+			\node at (2,0.75) {\makecell{Training\\ dataset}};
+			\node at (2,4.75) {\makecell{Testing\\ dataset}};
+			\node at (6,2.75) {\makecell{Machine\\ learning}};
+			\node at (10,1.75) {\makecell{Training\\ accuracy}};
+			\node at (10,3.75) {\makecell{Testing\\ accuracy}};
+			\uncover<2>{
+				\draw[pattern=north east lines,pattern color=DarkOrchid!25,rounded corners] (0,2) rectangle (3,3.5);
+				\draw[thick,rounded corners] (0,2) rectangle (3,3.5);
+				\draw[thick,-latex] (3,2.75) -- (4,2.75);
+				\node at (0.6,2.75) {\includegraphics[height=0.8cm]{images/machine-learning/technical-support.png}};
+				\node at (2,2.75) {\makecell{Hyperpa-\\ rameters}};
+			}
+		\end{tikzpicture}
+	\end{figure}
+
+	\smallskip
+
+	\uncover<2>{
+		\begin{block}{}
+			How to \alert{maximize} the testing accuracy of the model by tuning the \alert{hyperparameters}? What is the gradient of the testing accuracy (or any other objective function) with respect to the hyperparameters?
+		\end{block}
+	}
 \end{frame}
 
 \section{Optimality conditions for smooth optimization}
 
 \begin{frame}
-    \frametitle{Title}
+    \frametitle{What is a solution?}
+
+    \begin{block}{}
+        A point~$x^{\ast} \in \Omega$ is
+        \begin{enumerate}
+            \item a \textcolor{OliveGreen}{global solution} if~$\obj(x) \ge \obj(x^{\ast})$ for all~$x \in \Omega$, and
+            \item a \textcolor{BurntOrange}{local solution} if there exists a neighborhood~$\mathcal{N} \subseteq \R^n$ of~$x^{\ast}$ such that~$\obj(x) \ge \obj(x^{\ast})$ for all~$x \in \mathcal{N} \cap \Omega$,
+        \end{enumerate}
+    \end{block}
+
+    \bigskip
+
+    \begin{center}
+        \begin{tikzpicture}
+            \begin{axis}[%
+                axis equal image,
+                ymin=-0.5,
+                ymax=3.5,
+                xlabel={$x$},%
+                ylabel={$f(x)$},%
+            ]
+                \addplot[domain=0:9,samples=200, smooth] {-x*(sin(360*x/(2*pi))+1)/6+3};
+                \draw[color=BurntOrange,fill=BurntOrange] (2.3695,2.32958) circle (0.12);
+                \draw[color=OliveGreen,fill=OliveGreen] (8.09966,0.340649) circle (0.12);
+            \end{axis}
+        \end{tikzpicture}
+    \end{center}
+
+    \medskip
+
+    We \alert{do not seek} local or global solutions! The problems are too hard.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Karush-Kuhn-Tucker (KKT) conditions}
+
+    Let~$\lag$ be the \alert{Lagrangian function}, defined by
+    \begin{equation*}
+        \lag(x, \lambda) = f(x) + \sum_{\mathclap{i \in \iub \cup \ieq}} \lambda_i \con{i}(x), \quad \text{for~$x \in \R^n$ and~$\lambda_i \in \R$,~$i \in \iub \cup \ieq$,}
+    \end{equation*}
+    where~$\lambda = [\lambda_i]_{i \in \iub \cup \ieq}^{\T}$.
+
+    \medskip
+
+    \begin{block}{First-order necessary conditions}
+        Let~$x^{\ast}$ be a \alert{local solution}.
+        Under some mild assumptions, there exists a \alert{Lagrange multiplier}~$\lambda^{\ast} = [\lambda_i^{\ast}]_{i \in \iub \cup \ieq}^{\T}$ such that
+        \begin{empheq}[left=\empheqlbrace]{alignat*=1}
+            & \nabla_x \lag(x^{\ast}, \lambda^{\ast}) = 0,\\
+            & \con{i}(x^{\ast}) \le 0, ~ i \in \iub,\\
+            & \con{i}(x^{\ast}) = 0, ~ i \in \ieq,\\
+            & \lambda_i^{\ast} \con{i}(x^{\ast}) = 0, ~ i \in \iub,\\
+            & \lambda_i^{\ast} \ge 0, ~ i \in \iub.
+        \end{empheq}
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Second-order optimality conditions}
+
+    Let~$\mathcal{A}(x)$ be the \alert{active set} at~$x$, i.e.,
+    \begin{equation*}
+        \mathcal{A}(x) = \ieq \cup \set{i \in \iub : \con{i}(x) \ge 0}.
+    \end{equation*}
+
+    \begin{block}{Second-order necessary conditions}
+        Let~$x^{\ast}$ be a \alert{local solution}.
+        Given a \alert{Lagrange multiplier}~$\lambda^{\ast}$ satisfying the KKT conditions, let~$z \in \R^n$ be any vector such that
+        \begin{subequations}
+            \label{eq:second-order}
+            \begin{empheq}[left=\empheqlbrace]{alignat=2}
+                & \nabla \con{i}(x^{\ast})^{\T} z = 0, ~ i \in \ieq,\\
+                & \nabla \con{i}(x^{\ast})^{\T} z = 0, ~ i \in \mathcal{A}(x^{\ast}) \cap \iub, ~ \lambda_i^{\ast} > 0,\\
+                & \nabla \con{i}(x^{\ast})^{\T} z \ge 0, ~ i \in \mathcal{A}(x^{\ast}) \cap \iub, ~ \lambda_i^{\ast} = 0.
+            \end{empheq}
+        \end{subequations}
+        Then~$z^{\T} \nabla_{x, x}^2 \lag(x^{\ast}, \lambda^{\ast}) z \ge 0$.
+    \end{block}
+
+    Some \alert{mild assumptions} are omitted for simplicity.
+
+    \medskip
+
+    If for all vector~$z$ satisfying~\eqref{eq:second-order} we have~$z^{\T} \nabla_{x, x}^2 \lag(x^{\ast}, \lambda^{\ast}) z > 0$, then the previous conditions are \alert{sufficient}.
 \end{frame}
 
 \section{Methodology of DFO}
 
 \begin{frame}
-    \frametitle{Title}
+    \frametitle{Existing methodologies}
+
+    \alert{Two main strategies} underlies the DFO methods.
+
+    \medskip
+
+    \begin{center}
+		\begin{tikzpicture}
+			\draw[thick] (1.5,0) -- (-0.5,-1);
+			\draw[thick] (1.5,0) -- (3.5,-1);
+			\draw[thick] (3.5,-2) -- (1.5,-3);
+			\draw[thick] (3.5,-2) -- (5.5,-3);
+			\draw[thick,rounded corners] (0,0) rectangle (3,1);
+            \draw[pattern=north east lines,pattern color=DarkOrchid!25,thick,rounded corners] (-2,-2) rectangle (1,-1);
+			\draw[pattern=north east lines,pattern color=DarkOrchid!25,thick,rounded corners] (2,-2) rectangle (5,-1);
+			\draw[thick,rounded corners] (0,-4) rectangle (3,-3);
+			\draw[thick,rounded corners] (4,-4) rectangle (7,-3);
+			\node at (1.5,.5) {DFO methods};
+			\node at (-0.5,-1.5) {Direct search};
+			\node at (3.5,-1.5) {Model based};
+			\node at (1.5,-3.5) {Line search};
+			\node at (5.5,-3.5) {Trust region};
+			\node[below right,font=\footnotesize\itshape] at (-2,-2) {\makecell[l]{Nelder-Mead,\\ Implicit filtering,\\ GPS, BFO, \dots}};
+			\node[below right,font=\footnotesize\itshape] at (0,-4) {\makecell[l]{Implicit filtering, \dots}};
+			\node[below right,font=\footnotesize\itshape] at (4,-4) {\makecell[l]{DFO, ORBIT,\\ Powell's solvers, \dots}};
+		\end{tikzpicture}
+    \end{center}
+
+    The DFO methods are \alert{iterative methods}.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Direct-search methods in unconstrained optimization}
+
+    \begin{block}{}
+        Direct-search methods \alert{sample}~$\obj$ around the current iterate and choose the next iterate among the sampled points based on \alert{simple comparisons}.
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Line-search methods in unconstrained optimization}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Trust-region methods in unconstrained optimization}
 \end{frame}
 
 \section{Benchmarking tools for DFO methods}
 
 \begin{frame}
-    \frametitle{Title}
+    \frametitle{Description of the experiments}
 
-    \parencite{Dolan_More_2002,More_Wild_2009,Gould_Scott_2016}
+    We compare the three unconstrained DFO solvers
+    \begin{enumerate}
+        \item \alert{NEWUOA}~\parencite{Powell_2006,Powell_2008},
+        \item \alert{BFGS} with forward finite difference, and
+        \item \alert{CG} with forward finite difference.
+    \end{enumerate}
+
+    \medskip
+
+    We compare them on
+    \begin{enumerate}
+        \item \alert{unconstrained problems} of dimension at most \num{50}, and
+        \item from the \alert{CUTEst} dataset~\parencite{Gould_Orban_Toint_2015}.
+    \end{enumerate}
+
+    \medskip
+
+    The problems are
+    \begin{enumerate}
+        \item \alert{unmodified} in the first experiment; and
+        \item \alert{noisy} in the second experiment, replacing their objective function with~$\tilde{\obj}(x) = [1 + \epsilon(x)] \obj(x)$, where~$\epsilon(x) \sim N(0, \sigma^2)$, for some~$\sigma > 0$.
+    \end{enumerate}
+
+    \medskip
+
+    We compare the solvers using \alert{performance and data profiles} (for calculation details, see~\cite{Dolan_More_2002,More_Wild_2009}).
+\end{frame}
+
+\begin{frame}
+    \frametitle{First experiment}
+
+    We compare the solvers
+    \begin{enumerate}
+        \item on \alert{unmodified} problems,
+        \item with a convergence tolerance~$\tau = 10^{-3}$, and
+        \item using \alert{\only<1>{performance}\only<2>{data} profiles}.
+    \end{enumerate}
+
+    \only<1>{
+        \begin{center}
+            \drawperformanceprofiles{{"NEWUOA","BFGS","CG"}}{plain-1-50-perf-bfgs-cg-newuoa-u.csv}{3}
+        \end{center}
+    }
+    \only<2>{
+        \begin{center}
+            \drawdataprofiles{{"NEWUOA","BFGS","CG"}}{plain-1-50-data-bfgs-cg-newuoa-u.csv}{3}
+        \end{center}
+    }
+\end{frame}
+
+\begin{frame}
+    \frametitle{Second experiment}
+
+    We compare the solvers
+    \begin{enumerate}
+        \item on \alert{noisy} problems with~$\sigma = 10^{-\only<1,4>{10}\only<2,5>{8}\only<3,6>{6}}$,
+        \item with a convergence tolerance~$\tau = 10^{-3}$, and
+        \item using \alert{\only<1,2,3>{performance}\only<4,5,6>{data} profiles}.
+    \end{enumerate}
+
+    \only<1>{
+        \begin{center}
+            \drawperformanceprofiles{{"NEWUOA","BFGS","CG"}}{noisy-1-50-10-perf-bfgs-cg-newuoa-u.csv}{3}
+        \end{center}
+    }
+    \only<2>{
+        \begin{center}
+            \drawperformanceprofiles{{"NEWUOA","BFGS","CG"}}{noisy-1-50-8-perf-bfgs-cg-newuoa-u.csv}{3}
+        \end{center}
+    }
+    \only<3>{
+        \begin{center}
+            \drawperformanceprofiles{{"NEWUOA","BFGS","CG"}}{noisy-1-50-6-perf-bfgs-cg-newuoa-u.csv}{3}
+        \end{center}
+    }
+    \only<4>{
+        \begin{center}
+            \drawdataprofiles{{"NEWUOA","BFGS","CG"}}{noisy-1-50-10-data-bfgs-cg-newuoa-u.csv}{3}
+        \end{center}
+    }
+    \only<5>{
+        \begin{center}
+            \drawdataprofiles{{"NEWUOA","BFGS","CG"}}{noisy-1-50-8-data-bfgs-cg-newuoa-u.csv}{3}
+        \end{center}
+    }
+    \only<6>{
+        \begin{center}
+            \drawdataprofiles{{"NEWUOA","BFGS","CG"}}{noisy-1-50-6-data-bfgs-cg-newuoa-u.csv}{3}
+        \end{center}
+    }
+\end{frame}
+
+\section{Conclusion}
+
+\begin{frame}{Conclusion}
+    In this talk, we presented
+    \begin{enumerate}
+        \item several \alert{concepts of DFO} and two examples of \alert{applications} from the research and engineering areas;
+        \item the \alert{optimality conditions} for smooth optimization; and
+        \item a few \alert{performance and data profiles} to understand how to use them in a DFO context to \alert{assess the performance} of solvers.
+    \end{enumerate}
+
+    \bigskip
+
+    In the next talk, we will discuss \alert{interpolation models for DFO}.
 \end{frame}
 
 \appendix

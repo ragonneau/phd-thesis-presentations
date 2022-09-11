@@ -31,9 +31,7 @@ jobs:
           extra_fonts: |
             ./fonts/fira-mono/*.otf
             ./fonts/fira-sans/*.otf
-          pre_compile: |
-            tlmgr update --self && tlmgr update --all
-            mkdir -p figures
+          pre_compile: tlmgr update --self && tlmgr update --all
 
       - name: Rename pdf documents
         run: bash build_tools/github/rename.sh
