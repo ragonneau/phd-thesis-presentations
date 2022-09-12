@@ -365,19 +365,81 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Direct-search methods in unconstrained optimization}
-
-    \begin{block}{}
-        Direct-search methods \alert{sample}~$\obj$ around the current iterate and choose the next iterate among the sampled points based on \alert{simple comparisons}.
-    \end{block}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Line-search methods in unconstrained optimization}
-\end{frame}
-
-\begin{frame}
     \frametitle{Trust-region methods in unconstrained optimization}
+
+    \foreach \n in {1,...,19}{
+        \only<\n>{
+            \begin{center}
+                \includegraphics[width=.9\textwidth]{images/trust-region/tr\n.png}
+            \end{center}
+        }
+    }
+\end{frame}
+
+\begin{frame}
+    \frametitle{Assessing the performance of the models}
+
+    For simplicity, we consider the problem
+	\begin{equation*}
+        \min_{x \in \R^n} \obj(x).
+    \end{equation*}
+
+	\begin{block}{How to assess the performance of the model?}
+		Let~$m^k$ be the~$k$th \alert{model}. Define the \alert{trust-region ratio}
+		\begin{equation*}
+            \rho^k = \frac{f(x^k) - f(x^k + d^k)}{m^k(x^k) - m^k(x^k + d^k)},
+        \end{equation*}
+		where~$x^k$ is the \alert{iterate} and~$d^k$ is the \alert{trial step}.
+        Let~$\Delta^k$ be the current trust-region radius.
+
+		\begin{center}
+			\begin{tikzpicture}
+				\fill [left color=BrickRed,right color=Goldenrod,opacity=0.7] (-3,-0.65) rectangle (0,0.65);
+				\fill [left color=Goldenrod,right color=OliveGreen,opacity=0.7] (0,-0.65) rectangle (3,0.65);
+				\fill [left color=OliveGreen,right color=OliveGreen,opacity=0.7] (3,-0.65) rectangle (6,0.65);
+
+				\draw [thick,-latex] (-3,0) -- (6.2,0) node [right] {$\rho^k$};
+				\draw [thick,dotted] (0,-0.65) -- (0,0.65) node [above] {$0$};
+				\draw [thick,dotted] (3,0) -- (3,0.65) node [above] {$\eta_2$};
+				\draw [ultra thick] (0,0.65) -- (0,0.7);
+				\draw [ultra thick] (3,0.65) -- (3,0.7);
+				\draw [ultra thick] (4.5,0.65) -- (4.5,0.7);
+				\node [above] at (4.5,0.65) {$1$};
+
+				% \draw [decorate,decoration=brace] (-3.05,0.05) -- (-3.05,0.65);
+				% \draw [decorate,decoration=brace] (-3.05,-0.65) -- (-3.05,-0.05);
+
+				\node [left] at (-3.1,0.325) {Values of~$\obj$};
+				\node [left] at (-3.1,-0.325) {Implication};
+				\node at (-1.5,0.325) {Increase};
+				\node at (-1.5,-0.325) {$\Delta^k$ too large};
+				\node at (1.5,0.325) {Decrease};
+				\node at (3,-0.325) {$\obj(x) \approx m^k(x)$  for~$\|x - x^k\| \leq \Delta^k$};
+				\node at (4.5,0.325) {Strong decrease};
+			\end{tikzpicture}
+		\end{center}
+	\end{block}
+\end{frame}
+
+\begin{frame}{Unconstrained trust-region framework}
+	\begin{algorithm}[H]
+		\DontPrintSemicolon
+		\KwData{Objective function~$\obj$, current iterate~$x^k$, current trust-region radius~$\Delta^k$, and constants~$0 \le \eta_0 \le \eta_1 \le \eta_2 < 1$ and~$0 \le \theta_1 < 1 < \theta_2$.}
+        Define~$m^k$ and calculate~$d^k$ by solving~$ \min_{\norm{d} \le \Delta^k} \obj(x^k + d)$\;
+        Evaluate the trust-region ratio~$\rho^k$\;
+		\eIf{$\rho^k \ge \eta_0$}{
+			$x^{k + 1} \gets x^k + d^k$\;
+		}{
+			$x^{k + 1} \gets x^k$\;
+		}
+        Update the trust-region radius
+        \begin{empheq}[left={\Delta^{k + 1} \gets \empheqlbrace}]{alignat*=2}
+            & \theta_1 \Delta^k && \quad \text{if~$\rho^k \le \eta_1$,}\\
+            & \Delta^k          && \quad \text{if~$\eta_1 < \rho^k \le \eta_2$,}\\
+            & \theta_2 \Delta^k && \quad \text{otherwise.}
+        \end{empheq}
+		\caption{The~$k$th iteration of a trust-region method}
+	\end{algorithm}
 \end{frame}
 
 \section{Benchmarking tools for DFO methods}

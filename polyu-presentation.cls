@@ -62,6 +62,7 @@
 \RequirePackage{mathtools}
 \RequirePackage{dsfont}
 \RequirePackage{empheq}
+\DeclareMathOperator*{\argmin}{arg\,min}
 \newcommand{\R}{\mathds{R}}
 \newcommand{\T}{\mathsf{T}}
 \newcommand{\abs}[2][]{#1\lvert#2#1\rvert}
@@ -78,7 +79,7 @@
 \RequirePackage{pgfplots}
 \RequirePackage{pgfplotstable}
 \RequirePackage{makecell}
-\usetikzlibrary{patterns}
+\usetikzlibrary{patterns,decorations.pathreplacing}
 \pgfplotsset{compat=1.18}
 \usepgfplotslibrary{external}
 \pgfplotscreateplotcyclelist{profiles}{%
@@ -113,6 +114,11 @@
 \tikzexternalize[%
     prefix=figures/,%
 ]
+
+% Pseudocode
+\usepackage[ruled,algosection,vlined]{algorithm2e}
+\newcommand\commfont[1]{\ttfamily\textcolor{OliveGreen}{#1}}
+\SetCommentSty{commfont}
 
 % Set up SI units
 \RequirePackage{siunitx}
