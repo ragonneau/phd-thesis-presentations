@@ -13,7 +13,7 @@
 %
 % The Current Maintainer of this work is Tom M. Ragonneau.
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{polyu-presentation}[2022/09/08 PolyU presentation document class]
+\ProvidesClass{polyu-presentation}[2022/09/12 PolyU presentation document class]
 
 % Load beamer class as basis
 \PassOptionsToPackage{usenames,dvipsnames}{xcolor}
@@ -117,7 +117,10 @@
 
 % Pseudocode
 \usepackage[ruled,algosection,vlined]{algorithm2e}
-\newcommand\commfont[1]{\ttfamily\textcolor{OliveGreen}{#1}}
+\renewenvironment{algomathdisplay}{\begin{equation*}}{\@endalgocfline\end{equation*}\vspace{-\baselineskip}\;}
+\newenvironment{algoempheq}[2][]{\empheq[#1]{#2}}{\@endalgocfline\endempheq\vspace{-\baselineskip}\;}
+\renewcommand{\thealgocf}{}
+\newcommand{\commfont}[1]{\ttfamily\textcolor{OliveGreen}{#1}}
 \SetCommentSty{commfont}
 
 % Set up SI units

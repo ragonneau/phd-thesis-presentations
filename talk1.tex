@@ -412,7 +412,7 @@
 				\node [left] at (-3.1,0.325) {Values of~$\obj$};
 				\node [left] at (-3.1,-0.325) {Implication};
 				\node at (-1.5,0.325) {Increase};
-				\node at (-1.5,-0.325) {$\Delta^k$ too large};
+				\node at (-1.5,-0.325) {$\Delta^k$ is too large};
 				\node at (1.5,0.325) {Decrease};
 				\node at (3,-0.325) {$\obj(x) \approx m^k(x)$  for~$\|x - x^k\| \leq \Delta^k$};
 				\node at (4.5,0.325) {Strong decrease};
@@ -425,19 +425,22 @@
 	\begin{algorithm}[H]
 		\DontPrintSemicolon
 		\KwData{Objective function~$\obj$, current iterate~$x^k$, current trust-region radius~$\Delta^k$, and constants~$0 \le \eta_0 \le \eta_1 \le \eta_2 < 1$ and~$0 \le \theta_1 < 1 < \theta_2$.}
-        Define~$m^k$ and calculate~$d^k$ by solving~$ \min_{\norm{d} \le \Delta^k} \obj(x^k + d)$\;
+        Define~$m^k$ and calculate~$d^k$ by solving approximately
+        \vspace{-0.4\baselineskip}\begin{algomathdisplay}
+            \min_{d \in \R^n} \obj(x^k + d) \quad \text{s.t.} \quad \norm{d} \le \Delta^k
+        \end{algomathdisplay}\vspace{-0.4\baselineskip}
         Evaluate the trust-region ratio~$\rho^k$\;
 		\eIf{$\rho^k \ge \eta_0$}{
-			$x^{k + 1} \gets x^k + d^k$\;
+			Update the trial point~$x^{k + 1} \gets x^k + d^k$\;
 		}{
-			$x^{k + 1} \gets x^k$\;
+			Retain the trial point~$x^{k + 1} \gets x^k$\;
 		}
         Update the trust-region radius
-        \begin{empheq}[left={\Delta^{k + 1} \gets \empheqlbrace}]{alignat*=2}
+        \vspace{-0.4\baselineskip}\begin{algoempheq}[left={\Delta^{k + 1} \gets \empheqlbrace}]{alignat*=2}
             & \theta_1 \Delta^k && \quad \text{if~$\rho^k \le \eta_1$,}\\
             & \Delta^k          && \quad \text{if~$\eta_1 < \rho^k \le \eta_2$,}\\
             & \theta_2 \Delta^k && \quad \text{otherwise.}
-        \end{empheq}
+        \end{algoempheq}\vspace{-0.4\baselineskip}
 		\caption{The~$k$th iteration of a trust-region method}
 	\end{algorithm}
 \end{frame}
