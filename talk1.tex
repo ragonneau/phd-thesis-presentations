@@ -50,14 +50,15 @@
 
 \title{Model-Based DFO Methods and Software}
 \subtitle{Talk no.\ 1 \textemdash\ Overview of DFO}
-\author[Tom M. Ragonneau]{Tom M. Ragonneau (\email{tom.ragonneau@polyu.edu.hk})}
+\author[Tom M. Ragonneau]{\texorpdfstring{
+    Tom M. Ragonneau\\ 
+    \footnotesize Co-supervised by Dr.\ Zaikun Zhang and by Prof.\ Xiaojun Chen
+}{Tom M. Ragonneau}}
 \institute[PolyU AMA]{
-    Supervised by Dr.\ Zaikun Zhang (\email{zaikun.zhang@polyu.edu.hk})\\
-    Co-supervised by Prof.\ Xiaojun Chen (\email{maxjchen@polyu.edu.hk})\and
     Department of Applied Mathematics\\
     The Hong Kong Polytechnic University
 }
-\date{September 13, 2022}
+\date{September 13, 2022 (Revised on September 19, 2022)}
 \titlegraphic{}
 
 \begin{document}
@@ -76,8 +77,8 @@
 \begin{frame}
     \frametitle{What is DFO?}
 
-    Derivative-free optimization (DFO) aims at minimizing an objective function~$\obj$ \alert{using function values} but not derivatives.
-    The objective function can be a \alert{black box}, resulting from \alert{experiments} or \alert{complex simulations} (PDE, \dots).
+    Derivative-free optimization (DFO) aims at minimizing a function~$\obj$ using only \alert{function values}.
+    The function can be a \alert{blackbox}, resulting from \alert{experiments} or \alert{complex simulations} (PDE, \dots).
 
     \bigskip
 
@@ -96,7 +97,7 @@
 
     \begin{block}{}
         \begin{enumerate}
-            \item The function~$\obj$ may be smooth, but derivatives \alert{cannot be evaluated}.
+            \item $\obj$ may be smooth, but derivatives \alert{cannot be evaluated}.
             \item Each objective function evaluation is \alert{expensive}.
             \item The complexity measure is the \alert{number of function evaluations}.
         \end{enumerate}
@@ -148,21 +149,21 @@
 \begin{frame}
     \frametitle{Mathematical formulation}
 
-    The problems we consider are of the form
+    The problem is
     \begin{align*}
         \min_{x \in \R^n}   & \quad \obj(x)\\
         \text{s.t.}         & \quad \con{i}(x) \le 0, ~ i \in \iub,\\
                             & \quad \con{i}(x) = 0, ~ i \in \ieq,
     \end{align*}
-    where~$\obj : \R^n \to \R$ is the \alert{objective function} and~$\con{i} : \R^n \to \R$ are the \alert{constraint functions}, with~$i \in \iub \cup \ieq$.
+    where~$\obj : \R^n \to \R$ is the \alert{objective function} and~$\con{i} : \R^n \to \R$ are the \alert{constraint functions}.
 
-    \bigskip
+    \smallskip
 
     \begin{block}{}
         \begin{enumerate}
-            \item The \alert{feasible set} of this problem is
+            \item The \alert{feasible set} is
             \begin{equation*}
-                \Omega = \set{x \in \R^n : \con{i}(x) \le 0, ~ i \in \iub ~ \mathrm{and} ~ \con{i}(x) = 0, ~ i \in \ieq}
+                \Omega = \set{x \in \R^n : \con{i}(x) \le 0, ~ i \in \iub ~ \mathrm{and} ~ \con{i}(x) = 0, ~ i \in \ieq}.
             \end{equation*}
             \item The derivatives of~$\obj$ and~$\con{i}$ are \alert{unknown}.
             \item \alert{No structure} of the problem (e.g., convexity) is assumed.
@@ -176,19 +177,23 @@
     \frametitle{Examples of DFO problems I}
 
     \begin{block}{Stability of the Gaussian elimination~\parencite{Higham_1993}}
-        Given a nonzero matrix~$A \in \R^{n \times n}$, denote by~$A^{(k)}$ the~$k$th matrix of the \alert{Gaussian elimination}.
-        The \alert{stability} of the Gaussian elimination is determined by the \alert{growth factor} of~$A$, given by
-        \begin{equation*}
-            \rho_n(A) = \frac{1}{\norm{A}_{\max}} \max_{0 \le k \le n - 1} \norm{A^{(k)}}_{\max}.
-        \end{equation*}
-        By solving
+        We can measure the \alert{stability} of the \alert{Gaussian elimination} by
         \begin{equation*}
             \max_{A \in \R^{n \times n}} \rho_n(A),
         \end{equation*}
-        we can get insights about the \alert{worst-case scenario} and obtain a starting point for \alert{theoretical analyses}.
+        where~$\rho_n(A)$ is the \alert{growth factor} of~$A$, given by
+        \begin{equation*}
+            \rho_n(A) = \frac{1}{\norm{A}_{\max}} \max_{0 \le k \le n - 1} \norm{A^{(k)}}_{\max},
+        \end{equation*}
+        with~$A^{(k)}$ being the~$k$th matrix of the Gaussian elimination.
+
+        \begin{enumerate}
+            \item Insights about the \alert{worst-case scenario}.
+            \item Starting point for \alert{theoretical analyses}.
+        \end{enumerate}
     \end{block}
 
-    \bigskip
+    \medskip
 
     What is~\alert{$\nabla \rho_n$}? Does it even exist?
 \end{frame}
@@ -236,7 +241,10 @@
 
 	\uncover<2>{
 		\begin{block}{}
-			How to \alert{maximize} the testing accuracy of the model by tuning the \alert{hyperparameters}? What is the gradient of the testing accuracy (or any other objective function) with respect to the hyperparameters?
+            \begin{enumerate}
+                \item How to \alert{maximize} the testing accuracy by tuning the \alert{hyperparameters}?
+                \item What is the gradient of the testing accuracy?
+            \end{enumerate}
 		\end{block}
 	}
 \end{frame}
@@ -250,11 +258,11 @@
         A point~$x^{\ast} \in \Omega$ is
         \begin{enumerate}
             \item a \textcolor{OliveGreen}{global solution} if~$\obj(x) \ge \obj(x^{\ast})$ for all~$x \in \Omega$, and
-            \item a \textcolor{BurntOrange}{local solution} if there exists a neighborhood~$\mathcal{N} \subseteq \R^n$ of~$x^{\ast}$ such that~$\obj(x) \ge \obj(x^{\ast})$ for all~$x \in \mathcal{N} \cap \Omega$,
+            \item a \textcolor{BurntOrange}{local solution} if there exists a neighborhood~$\mathcal{N} \subseteq \R^n$ of~$x^{\ast}$ such that~$\obj(x) \ge \obj(x^{\ast})$ for all~$x \in \mathcal{N} \cap \Omega$.
         \end{enumerate}
     \end{block}
 
-    \bigskip
+    \smallskip
 
     \begin{center}
         \begin{tikzpicture}
@@ -272,25 +280,20 @@
         \end{tikzpicture}
     \end{center}
 
-    \medskip
-
-    We \alert{do not seek} local or global solutions! The problems are too hard.
+    We \alert{do not seek} local or global solutions! They are \alert{too difficult} to find.
 \end{frame}
 
 \begin{frame}
-    \frametitle{Karush-Kuhn-Tucker (KKT) conditions}
+    \frametitle{First-order optimality conditions}
 
-    Let~$\lag$ be the \alert{Lagrangian function}, defined by
+    Let~$\lag$ be the \alert{Lagrangian function}, i.e.,
     \begin{equation*}
-        \lag(x, \lambda) = f(x) + \sum_{\mathclap{i \in \iub \cup \ieq}} \lambda_i \con{i}(x), \quad \text{for~$x \in \R^n$ and~$\lambda_i \in \R$,~$i \in \iub \cup \ieq$,}
+        \lag(x, \lambda) = f(x) + \sum_{\mathclap{i \in \iub \cup \ieq}} \lambda_i \con{i}(x), \quad \text{for~$x \in \R^n$ and~$\lambda_i \in \R$.}
     \end{equation*}
-    where~$\lambda = [\lambda_i]_{i \in \iub \cup \ieq}^{\T}$.
 
-    \medskip
-
-    \begin{block}{First-order necessary conditions}
+    \begin{block}{First-order necessary conditions (KKT conditions)}
         Let~$x^{\ast}$ be a \alert{local solution}.
-        Under some mild assumptions, there exists a \alert{Lagrange multiplier}~$\lambda^{\ast} = [\lambda_i^{\ast}]_{i \in \iub \cup \ieq}^{\T}$ such that
+        Under standard assumptions, there exists a \alert{Lagrange multiplier}~$\lambda^{\ast}$ such that
         \begin{empheq}[left=\empheqlbrace]{alignat*=1}
             & \nabla_x \lag(x^{\ast}, \lambda^{\ast}) = 0,\\
             & \con{i}(x^{\ast}) \le 0, ~ i \in \iub,\\
@@ -314,7 +317,7 @@
         Given a \alert{Lagrange multiplier}~$\lambda^{\ast}$ satisfying the KKT conditions, let~$z \in \R^n$ be any vector such that
         \begin{subequations}
             \label{eq:second-order}
-            \begin{empheq}[left=\empheqlbrace]{alignat=2}
+            \begin{empheq}[left=\empheqlbrace]{alignat=1}
                 & \nabla \con{i}(x^{\ast})^{\T} z = 0, ~ i \in \ieq,\\
                 & \nabla \con{i}(x^{\ast})^{\T} z = 0, ~ i \in \mathcal{A}(x^{\ast}) \cap \iub, ~ \lambda_i^{\ast} > 0,\\
                 & \nabla \con{i}(x^{\ast})^{\T} z \ge 0, ~ i \in \mathcal{A}(x^{\ast}) \cap \iub, ~ \lambda_i^{\ast} = 0.
@@ -323,45 +326,36 @@
         Then~$z^{\T} \nabla_{x, x}^2 \lag(x^{\ast}, \lambda^{\ast}) z \ge 0$.
     \end{block}
 
-    Some \alert{mild assumptions} are omitted for simplicity.
-
-    \medskip
-
-    If for all vector~$z$ satisfying~\eqref{eq:second-order} we have~$z^{\T} \nabla_{x, x}^2 \lag(x^{\ast}, \lambda^{\ast}) z > 0$, then the previous conditions are \alert{sufficient}.
+    If~$z^{\T} \nabla_{x, x}^2 \lag(x^{\ast}, \lambda^{\ast}) z > 0$ for all~$z$, the conditions are \alert{sufficient}.
 \end{frame}
 
-\section{Methodology of DFO}
+\section{Trust-region methods}
 
 \begin{frame}
-    \frametitle{Existing methodologies}
+    \frametitle{Methodology of DFO}
 
     \alert{Two main strategies} underlies the DFO methods.
-
-    \medskip
-
-    \begin{center}
-		\begin{tikzpicture}
-			\draw[thick] (1.5,0) -- (-0.5,-1);
-			\draw[thick] (1.5,0) -- (3.5,-1);
-			\draw[thick] (3.5,-2) -- (1.5,-3);
-			\draw[thick] (3.5,-2) -- (5.5,-3);
-			\draw[thick,rounded corners] (0,0) rectangle (3,1);
-            \draw[pattern=north east lines,pattern color=DarkOrchid!25,thick,rounded corners] (-2,-2) rectangle (1,-1);
-			\draw[pattern=north east lines,pattern color=DarkOrchid!25,thick,rounded corners] (2,-2) rectangle (5,-1);
-			\draw[thick,rounded corners] (0,-4) rectangle (3,-3);
-			\draw[thick,rounded corners] (4,-4) rectangle (7,-3);
-			\node at (1.5,.5) {DFO methods};
-			\node at (-0.5,-1.5) {Direct search};
-			\node at (3.5,-1.5) {Model based};
-			\node at (1.5,-3.5) {Line search};
-			\node at (5.5,-3.5) {Trust region};
-			\node[below right,font=\footnotesize\itshape] at (-2,-2) {\makecell[l]{Nelder-Mead,\\ Implicit filtering,\\ GPS, BFO, \dots}};
-			\node[below right,font=\footnotesize\itshape] at (0,-4) {\makecell[l]{Implicit filtering, \dots}};
-			\node[below right,font=\footnotesize\itshape] at (4,-4) {\makecell[l]{DFO, ORBIT,\\ Powell's solvers, \dots}};
-		\end{tikzpicture}
-    \end{center}
-
-    The DFO methods are \alert{iterative methods}.
+    \begin{enumerate}
+        \item \alert{Direct-search} methods select iterates only using simple comparisons.
+        They are easy to implement but slow in practice.
+        \item \alert{Model-based} methods select iterates according to models of~$\obj$ and~$\Omega$.
+        They are hard to implement but fast in practice.
+        \begin{enumerate}
+            \item \alert{Line-search} methods: they perform a one-dimensional searches along directions provided by the models.
+            \item \alert{Trust-region} methods: our interest.
+            For simplicity, here~$\Omega = \R^n$.
+            Given~$m^k$ a model of~$\obj$ around~$x^k$, let
+            \begin{equation*}
+                d^k \approx \argmin_{d \in \R^n} \set{m^k(x^k + d) : \norm{d} \le \Delta^k}
+            \end{equation*}
+            for some~$\Delta^k$.
+            Then
+            \begin{empheq}[left={x^{k + 1} = \empheqlbrace}]{alignat*=2}
+                & x^k + d^k   && \quad \text{if sufficient decrease of~$\obj$,}\\
+                & x^k         && \quad \text{otherwise.}
+            \end{empheq}
+        \end{enumerate}
+    \end{enumerate}
 \end{frame}
 
 \begin{frame}
@@ -370,7 +364,7 @@
     \foreach \n in {1,...,19}{
         \only<\n>{
             \begin{center}
-                \includegraphics[width=.9\textwidth]{images/trust-region/tr\n.png}
+                \includegraphics[width=.9\textwidth]{images/trust-region/tr\n.pdf}
             \end{center}
         }
     }
@@ -379,71 +373,69 @@
 \begin{frame}
     \frametitle{Assessing the performance of the models}
 
-    For simplicity, we consider the problem
+    The problem is
 	\begin{equation*}
         \min_{x \in \R^n} \obj(x).
     \end{equation*}
 
 	\begin{block}{How to assess the performance of the model?}
-		Let~$m^k$ be the~$k$th \alert{model}. Define the \alert{trust-region ratio}
+		Let~$m^k$ be the~$k$th \alert{model}.
+        Define the \alert{trust-region ratio}
 		\begin{equation*}
-            \rho^k = \frac{f(x^k) - f(x^k + d^k)}{m^k(x^k) - m^k(x^k + d^k)},
+            \rho^k = \frac{f(x^k) - f(x^k + d^k)}{m^k(x^k) - m^k(x^k + d^k)}.
         \end{equation*}
-		where~$x^k$ is the \alert{iterate} and~$d^k$ is the \alert{trial step}.
-        Let~$\Delta^k$ be the current trust-region radius.
+		Let~$\Delta^k$ be the current trust-region radius.
 
 		\begin{center}
 			\begin{tikzpicture}
-				\fill [left color=BrickRed,right color=Goldenrod,opacity=0.7] (-3,-0.65) rectangle (0,0.65);
-				\fill [left color=Goldenrod,right color=OliveGreen,opacity=0.7] (0,-0.65) rectangle (3,0.65);
-				\fill [left color=OliveGreen,right color=OliveGreen,opacity=0.7] (3,-0.65) rectangle (6,0.65);
+				\fill [left color=BrickRed,right color=Goldenrod,opacity=0.5] (-3,-1.15) rectangle (0,0.65);
+				\fill [left color=Goldenrod,right color=OliveGreen,opacity=0.5] (0,-1.15) rectangle (3,0.65);
+				\fill [left color=OliveGreen,right color=OliveGreen,opacity=0.5] (3,-1.15) rectangle (6,0.65);
 
 				\draw [thick,-latex] (-3,0) -- (6.2,0) node [right] {$\rho^k$};
-				\draw [thick,dotted] (0,-0.65) -- (0,0.65) node [above] {$0$};
+				\draw [thick,dotted] (0,-1.15) -- (0,0.65) node [above] {$0$};
 				\draw [thick,dotted] (3,0) -- (3,0.65) node [above] {$\eta_2$};
 				\draw [ultra thick] (0,0.65) -- (0,0.7);
 				\draw [ultra thick] (3,0.65) -- (3,0.7);
 				\draw [ultra thick] (4.5,0.65) -- (4.5,0.7);
 				\node [above] at (4.5,0.65) {$1$};
 
-				% \draw [decorate,decoration=brace] (-3.05,0.05) -- (-3.05,0.65);
-				% \draw [decorate,decoration=brace] (-3.05,-0.65) -- (-3.05,-0.05);
-
 				\node [left] at (-3.1,0.325) {Values of~$\obj$};
-				\node [left] at (-3.1,-0.325) {Implication};
+				\node [left] at (-3.1,-0.575) {Implication};
 				\node at (-1.5,0.325) {Increase};
 				\node at (-1.5,-0.325) {$\Delta^k$ is too large};
+				\node at (-1.5,-0.825) {or~$m^k$ is bad};
 				\node at (1.5,0.325) {Decrease};
-				\node at (3,-0.325) {$\obj(x) \approx m^k(x)$  for~$\|x - x^k\| \leq \Delta^k$};
+				\node at (3,-0.65) {$\obj(x) \approx m^k(x)$  for~$\|x - x^k\| \leq \Delta^k$};
 				\node at (4.5,0.325) {Strong decrease};
 			\end{tikzpicture}
 		\end{center}
 	\end{block}
 \end{frame}
 
-\begin{frame}{Unconstrained trust-region framework}
-	\begin{algorithm}[H]
-		\DontPrintSemicolon
-		\KwData{Objective function~$\obj$, current iterate~$x^k$, current trust-region radius~$\Delta^k$, and constants~$0 \le \eta_0 \le \eta_1 \le \eta_2 < 1$ and~$0 \le \theta_1 < 1 < \theta_2$.}
-        Define~$m^k$ and calculate~$d^k$ by solving approximately
-        \vspace{-0.4\baselineskip}\begin{algomathdisplay}
-            \min_{d \in \R^n} \obj(x^k + d) \quad \text{s.t.} \quad \norm{d} \le \Delta^k
-        \end{algomathdisplay}\vspace{-0.4\baselineskip}
-        Evaluate the trust-region ratio~$\rho^k$\;
-		\eIf{$\rho^k \ge \eta_0$}{
-			Update the trial point~$x^{k + 1} \gets x^k + d^k$\;
-		}{
-			Retain the trial point~$x^{k + 1} \gets x^k$\;
-		}
-        Update the trust-region radius
-        \vspace{-0.4\baselineskip}\begin{algoempheq}[left={\Delta^{k + 1} \gets \empheqlbrace}]{alignat*=2}
-            & \theta_1 \Delta^k && \quad \text{if~$\rho^k \le \eta_1$,}\\
-            & \Delta^k          && \quad \text{if~$\eta_1 < \rho^k \le \eta_2$,}\\
-            & \theta_2 \Delta^k && \quad \text{otherwise.}
-        \end{algoempheq}\vspace{-0.4\baselineskip}
-		\caption{The~$k$th iteration of a trust-region method}
-	\end{algorithm}
-\end{frame}
+% \begin{frame}{Unconstrained trust-region framework}
+% 	\begin{algorithm}[H]
+% 		\DontPrintSemicolon
+% 		\KwData{Objective function~$\obj$, current iterate~$x^k$, current trust-region radius~$\Delta^k$, and constants~$0 \le \eta_0 \le \eta_1 \le \eta_2 < 1$ and~$0 \le \theta_1 < 1 < \theta_2$.}
+%         Define~$m^k$ and calculate~$d^k$ by solving approximately
+%         \vspace{-0.4\baselineskip}\begin{algomathdisplay}
+%             \min_{d \in \R^n} \obj(x^k + d) \quad \text{s.t.} \quad \norm{d} \le \Delta^k
+%         \end{algomathdisplay}\vspace{-0.4\baselineskip}
+%         Evaluate the trust-region ratio~$\rho^k$\;
+% 		\eIf{$\rho^k \ge \eta_0$}{
+% 			Update the trial point~$x^{k + 1} \gets x^k + d^k$\;
+% 		}{
+% 			Retain the trial point~$x^{k + 1} \gets x^k$\;
+% 		}
+%         Update the trust-region radius
+%         \vspace{-0.4\baselineskip}\begin{algoempheq}[left={\Delta^{k + 1} \gets \empheqlbrace}]{alignat*=2}
+%             & \theta_1 \Delta^k && \quad \text{if~$\rho^k \le \eta_1$,}\\
+%             & \Delta^k          && \quad \text{if~$\eta_1 < \rho^k \le \eta_2$,}\\
+%             & \theta_2 \Delta^k && \quad \text{otherwise.}
+%         \end{algoempheq}\vspace{-0.4\baselineskip}
+% 		\caption{The~$k$th iteration of a trust-region method}
+% 	\end{algorithm}
+% \end{frame}
 
 \section{Benchmarking tools for DFO methods}
 
@@ -459,23 +451,44 @@
 
     \medskip
 
-    We compare them on
+    We compare them on unconstrained problems that are
     \begin{enumerate}
-        \item \alert{unconstrained problems} of dimension at most \num{50}, and
-        \item from the \alert{CUTEst} dataset~\parencite{Gould_Orban_Toint_2015}.
+        \item from the \alert{CUTEst} dataset~\parencite{Gould_Orban_Toint_2015}, and
+        \item of dimension at most \num{50}.
     \end{enumerate}
 
     \medskip
+
+    We employ the Python libraries
+    \begin{enumerate}
+        \item \alert{PDFO}, which provides NEWUOA;
+        \item \alert{SciPy}, which provides BFGS and CG; and
+        \item \alert{PyCUTEst}, which provides the CUTEst problems.
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Description of the experiments}
 
     The problems are
     \begin{enumerate}
         \item \alert{unmodified} in the first experiment; and
-        \item \alert{noisy} in the second experiment, replacing their objective function with~$\tilde{\obj}(x) = [1 + \epsilon(x)] \obj(x)$, where~$\epsilon(x) \sim N(0, \sigma^2)$, for some~$\sigma > 0$.
+        \item \alert{noisy} in the second experiment (relative noise), replacing~$f$ with
+        \begin{equation*}
+            \tilde{\obj}(x) = [1 + \epsilon(x)] \obj(x),
+        \end{equation*}
+        where~$\epsilon(x) \sim N(0, \sigma^2)$, for some~$\sigma > 0$.
     \end{enumerate}
 
-    \medskip
+    \bigskip
 
-    We compare the solvers using \alert{performance and data profiles} (for calculation details, see~\cite{Dolan_More_2002,More_Wild_2009}).
+    We use \alert{performance and data profiles}~\parencite{Dolan_More_2002}.
+    
+    The \alert{convergence test} for DFO~\parencite{More_Wild_2009} is
+    \begin{equation*}
+        \obj(x^k) \le \obj_{\min} + \tau [\obj(x^0) - \obj_{\min}],
+    \end{equation*}
+    for some~$\tau > 0$, where~$\obj_{\min}$ is the least function value achieved by all solvers.
 \end{frame}
 
 \begin{frame}
@@ -484,7 +497,7 @@
     We compare the solvers
     \begin{enumerate}
         \item on \alert{unmodified} problems,
-        \item with a convergence tolerance~$\tau = 10^{-3}$, and
+        \item with~$\tau = 10^{-3}$, and
         \item using \alert{\only<1>{performance}\only<2>{data} profiles}.
     \end{enumerate}
 
@@ -506,7 +519,7 @@
     We compare the solvers
     \begin{enumerate}
         \item on \alert{noisy} problems with~$\sigma = 10^{-\only<1,4>{10}\only<2,5>{8}\only<3,6>{6}}$,
-        \item with a convergence tolerance~$\tau = 10^{-3}$, and
+        \item with~$\tau = 10^{-3}$, and
         \item using \alert{\only<1,2,3>{performance}\only<4,5,6>{data} profiles}.
     \end{enumerate}
 
@@ -547,9 +560,10 @@
 \begin{frame}{Conclusion}
     In this talk, we presented
     \begin{enumerate}
-        \item several \alert{concepts of DFO} and two examples of \alert{applications} from the research and engineering areas;
-        \item the \alert{optimality conditions} for smooth optimization; and
-        \item a few \alert{performance and data profiles} to understand how to use them in a DFO context to \alert{assess the performance} of solvers.
+        \item several \alert{concepts of DFO} and two examples of \alert{applications};
+        \item the \alert{optimality conditions} for smooth optimization;
+        \item the \alert{trust-region methods} for unconstrained optimization; and
+        \item a few \alert{performance and data profiles} for DFO.
     \end{enumerate}
 
     \bigskip

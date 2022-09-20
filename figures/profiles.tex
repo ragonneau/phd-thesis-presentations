@@ -12,7 +12,7 @@
 % This work has the LPPL maintenance status `maintained'.
 %
 % The Current Maintainer of this work is Tom M. Ragonneau.
-\begin{tikzpicture}
+\begin{tikzpicture}[scale=0.9]
     \pgfplotstableread[col sep=comma]{\selectcsv}\selectcsvread
     \newcommand{\getxmaxcsv}[1]{%
         \pgfplotstablegetrowsof{\selectcsvread}%

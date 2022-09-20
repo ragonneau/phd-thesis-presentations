@@ -28,7 +28,22 @@
 \usetheme{Boadilla}
 \usecolortheme{seahorse}
 \usefonttheme{professionalfonts}
-\setbeamercolor{alerted text}{fg=DarkOrchid}
+\setbeamertemplate{footline}{
+    \leavevmode%
+    \hbox{%
+        \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+            \usebeamerfont{author in head/foot}\insertshortauthor~(\insertshortinstitute)
+        \end{beamercolorbox}%
+        \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+            \usebeamerfont{title in head/foot}\insertshorttitle
+        \end{beamercolorbox}%
+        \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,right]{date in head/foot}%
+            \usebeamerfont{date in head/foot}\insertshortsubtitle\hspace*{2em}
+            \usebeamertemplate{page number in head/foot}\hspace*{2ex}
+        \end{beamercolorbox}%
+    }%
+    \vskip0pt%
+}
 
 % Modify beamer default template
 \setbeamertemplate{navigation symbols}{}
@@ -40,20 +55,24 @@
 % Latin fonts
 \RequirePackage[T1]{fontenc}
 \RequirePackage{fontspec}
-\setsansfont{FiraSans}[%
-    Path=fonts/fira-sans/,%
-    Extension=.otf,%
-    UprightFont=*-Light,%
-    BoldFont=*-SemiBold,%
-    ItalicFont=*-LightItalic,%
-    BoldItalicFont=*-SemiBoldItalic,%
+\setsansfont{FiraSans}[
+    Path=fonts/fira-sans/,
+    Extension=.otf,
+    UprightFont=*-Light,
+    BoldFont=*-Medium,
+    ItalicFont=*-LightItalic,
+    BoldItalicFont=*-SemiBoldItalic,
 ]
-\setmonofont{FiraMono}[%
-    Path=fonts/fira-mono/,%
-    Extension=.otf,%
-    UprightFont=*-Regular,%
-    BoldFont=*-Bold,%
+\setmonofont{FiraMono}[
+    Path=fonts/fira-mono/,
+    Extension=.otf,
+    UprightFont=*-Regular,
+    BoldFont=*-Bold,
 ]
+
+% Spacing between lines
+\usepackage[nodisplayskipstretch]{setspace}
+\setstretch{1.25}
 
 % Mathematics
 \RequirePackage{amsmath}
@@ -80,40 +99,47 @@
 \RequirePackage{pgfplotstable}
 \RequirePackage{makecell}
 \usetikzlibrary{patterns,decorations.pathreplacing}
-\pgfplotsset{compat=1.18}
-\usepgfplotslibrary{external}
-\pgfplotscreateplotcyclelist{profiles}{%
-    thick,mark=none,NavyBlue,solid\\%
-    thick,mark=none,BurntOrange,dashed\\%
-    thick,mark=none,OliveGreen,dotted\\%
-    thick,mark=none,BrickRed,dashdotted\\%
-    thick,mark=none,Purple,densely dashed\\%
-    thick,mark=none,Mahogan,densely dashed\\%
-    thick,mark=none,Rhodamine,densely dashdotted\\%
-    thick,mark=none,Gray,loosely dashed\\%
-    thick,mark=none,LimeGreen,loosely dotted\\%
-    thick,mark=none,JungleGreen,loosely dashdotted\\%
+\pgfplotsset{
+    height=0.5\paperwidth,
+    compat=1.18,
 }
-\pgfplotsset{%
-    every axis/.append style={%
-        label style={font=\footnotesize},%
-        legend cell align=left,%
-        legend style={%
-            rounded corners,%
-            thick,%
-            draw=black!15,%
-            % fill opacity=0.8,%
-            % draw opacity=1,%
-            % text opacity=1,%
-            font=\scriptsize,%
-        },%
-        tick label style={font=\footnotesize},%
-    },%
+\usepgfplotslibrary{external}
+\pgfplotscreateplotcyclelist{profiles}{
+    thick,mark=none,NavyBlue,solid\\
+    thick,mark=none,BurntOrange,dashed\\
+    thick,mark=none,OliveGreen,dotted\\
+    thick,mark=none,BrickRed,dashdotted\\
+    thick,mark=none,Purple,densely dashed\\
+    thick,mark=none,Mahogan,densely dashed\\
+    thick,mark=none,Rhodamine,densely dashdotted\\
+    thick,mark=none,Gray,loosely dashed\\
+    thick,mark=none,LimeGreen,loosely dotted\\
+    thick,mark=none,JungleGreen,loosely dashdotted\\
+}
+\pgfplotsset{
+    every axis/.append style={
+        label style={font=\footnotesize},
+        legend cell align=left,
+        legend style={
+            rounded corners,
+            thick,
+            draw=black!15,
+            % fill opacity=0.8,
+            % draw opacity=1,
+            % text opacity=1,
+            font=\scriptsize,
+        },
+        tick label style={font=\footnotesize},
+    },
 }
 \pgfkeys{/pgf/images/include external/.code=\includegraphics{#1}}
-\tikzexternalize[%
-    prefix=figures/,%
+\tikzexternalize[
+    prefix=figures/,
 ]
+
+% Alert text
+\setbeamercolor{alerted text}{fg=RedViolet}
+\setbeamerfont{alerted text}{series=\bfseries\boldmath}
 
 % Pseudocode
 \usepackage[ruled,algosection,vlined]{algorithm2e}
@@ -125,37 +151,37 @@
 
 % Set up SI units
 \RequirePackage{siunitx}
-\sisetup{%
-    group-separator={,},%
+\sisetup{
+    group-separator={,},
 }
 
 % Bibliography information processing
-\usepackage[%
-    style=authoryear-comp,%
-    sorting=nyt,%
-    sortcites=false,%
+\usepackage[
+    style=authoryear-comp,
+    sorting=nyt,
+    sortcites=false,
 ]{biblatex}
 \setbeamertemplate{bibliography item}[default]
-\defbibenvironment{bibliography}{%
-	\list{}{%
-        \settowidth\labelwidth{\usebeamertemplate{bibliography item}}%
-        \setlength\leftmargin{\labelwidth}%
-        % \setlength\itemindent{-\leftmargin}%
-        % \addtolength\leftmargin{\leftmargin}%
-        \setlength\labelsep{\biblabelsep}%
-        \addtolength\leftmargin{\labelsep}%
-        \setlength\bibitemsep{\itemsep}%
-        \setlength\parsep{\bibparsep}%
-	}%
+\defbibenvironment{bibliography}{
+	\list{}{
+        \settowidth\labelwidth{\usebeamertemplate{bibliography item}}
+        \setlength\leftmargin{\labelwidth}
+        % \setlength\itemindent{-\leftmargin}
+        % \addtolength\leftmargin{\leftmargin}
+        \setlength\labelsep{\biblabelsep}
+        \addtolength\leftmargin{\labelsep}
+        \setlength\bibitemsep{\itemsep}
+        \setlength\parsep{\bibparsep}
+	}
 }{\endlist}{\item}
 \DeclareNameAlias{author}{family-given}
 
 % Place a partial table of contents at the beginning of each section
-\AtBeginSection[]{%
+\AtBeginSection[]{
 	\begin{frame}
         \frametitle{Table of contents}
 		\tableofcontents[currentsection,hideallsubsections]
-	\end{frame}%
+	\end{frame}
 }
 
 % Email field
