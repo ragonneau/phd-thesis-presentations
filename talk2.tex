@@ -1,0 +1,314 @@
+%% talk1.tex
+%% Copyright 2022 Tom M. Ragonneau
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+%
+% This work has the LPPL maintenance status `maintained'.
+%
+% The Current Maintainer of this work is Tom M. Ragonneau.
+\documentclass{polyu-presentation}
+\usepackage[final]{microtype}
+
+% List of hyphenation exceptions for US English
+% Source: https://ctan.org/tex-archive/info/digests/tugboat/hyphenex
+\input{ushyphex}
+
+% Bibliographical resources
+\addbibresource{ragonneau-bib/strings.bib}
+\addbibresource{ragonneau-bib/optim.bib}
+
+% Dedicated mathematical macros
+\usepackage{ifthen}
+\newcommand{\obj}{f}
+\newcommand{\objm}[1][]{\hat{f}\ifthenelse{\equal{#1}{}}{}{^{#1}}}
+\newcommand{\xpt}[1][]{\mathcal{Y}\ifthenelse{\equal{#1}{}}{}{^{#1}}}
+
+\title{Model-Based DFO Methods and Software}
+\subtitle{Talk no.\ 2 \textemdash\ Interpolation models}
+\author[Tom M. Ragonneau]{\texorpdfstring{
+    Tom M. Ragonneau\\ 
+    \footnotesize Co-supervised by Dr.\ Zaikun Zhang and by Prof.\ Xiaojun Chen
+}{Tom M. Ragonneau}}
+\institute[PolyU AMA]{
+    Department of Applied Mathematics\\
+    The Hong Kong Polytechnic University
+}
+\date{September 26, 2022}
+\titlegraphic{}
+
+\begin{document}
+
+\begin{frame}
+	\titlepage
+\end{frame}
+
+\begin{frame}
+    \frametitle{Table of contents}
+	\tableofcontents[hideallsubsections]
+\end{frame}
+
+\section{Elementary concepts of multivariate interpolation}
+
+\begin{frame}
+    \frametitle{Interpolation models for DFO}
+    
+    A polynomial~$\objm$ \alert{interpolates}~$\obj$ on~$\xpt \subseteq \R^n$ if
+    \begin{equation*}
+        \objm(y) = \obj(y), \quad \text{for~$y \in \xpt$.}
+    \end{equation*}
+
+    \begin{block}{}
+        The \alert{dimension} of the space of polynomials on~$\R^n$ of degree at most~$k$ is
+        \begin{equation*}
+            \binom{n + k}{n} = \frac{1}{k!} \prod_{i = 1}^k (n + i) \ge \frac{n^k}{k!}.
+        \end{equation*}
+
+        Why?
+        For the terms~$x_1^{i_1} x_2^{i_2} \dots x_n^{i_n}$, we \alert{count} the number of~$(i_1, i_2, \dots, i_n)$ with nonnegative entries and~$i_1 + i_2 + \dots + i_n \le k$.
+        With~$k$ stars and~$n$ bars:
+
+        \begin{center}
+            \tikzstyle{thmstars}=[star,star points=5,star point ratio=2.25,draw,thick,inner sep=2pt]
+            \begin{tikzpicture}
+                \node[thmstars] at (0,0) {};
+                \node[thmstars] at (1,0) {};
+                \node[thmstars] at (2,0) {};
+                \node[thmstars] at (3,0) {};
+                \node at (4,0) {$\cdots$};
+                \node[thmstars] at (5,0) {};
+                \node[thmstars] at (6,0) {};
+
+                \draw[thick] (-0.5,-0.25) -- (-0.5,0.25);
+                \draw[thick] (0.4,-0.25) -- (0.4,0.25);
+                \draw[thick] (0.6,-0.25) -- (0.6,0.25);
+                \draw[thick] (2.5,-0.25) -- (2.5,0.25);
+                \draw[thick] (5.5,-0.25) -- (5.5,0.25);
+            \end{tikzpicture}
+        \end{center}
+
+        Here,~$i_1 = 0$,~$i_2 = 1$,~$i_3 = 0$,~$i_4 = 2$, etc.
+        There are~$\binom{n + k}{k}$ \alert{combinations}.
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Quadratic interpolants}
+
+    We focus on the \alert{quadratic} interpolants
+    \begin{equation*}
+        \objm(x) = \textcolor{OliveGreen}{c} + \textcolor{BurntOrange}{g}^{\T} x + \frac{1}{2} x^{\T} \textcolor{Maroon}{B} x.
+    \end{equation*}
+
+    \begin{block}{Poisedness~{\parencite[Def.~3.1]{Conn_Scheinberg_Vicente_2009b}}}
+        The interpolation set~$\xpt \subseteq \R^n$ is \alert{poised} if for all~$\obj$ there exists a \alert{unique} quadratic interpolant~$\objm$ such that
+        \begin{equation*}
+            \objm(y) = \obj(y), \quad \text{for~$y \in \xpt$.}
+        \end{equation*}
+    \end{block}
+
+    \medskip
+
+    If~$\xpt$ is poised, then
+    \begin{equation*}
+        \card \xpt = \frac{1}{2} (n + 1) (n + 2) = \textcolor{OliveGreen}{1} + \textcolor{BurntOrange}{n} + \textcolor{Maroon}{\frac{n (n + 1)}{2}}.
+    \end{equation*}
+\end{frame}
+
+\begin{frame}
+    \frametitle{A basis of quadratic polynomials}
+
+    Let~$\xpt = \set{y^1, y^2, \dots, y^m}$ be a \alert{poised} interpolation set.
+
+    \medskip
+    
+    \begin{block}{Lagrange polynomials}
+        The~$i$th \alert{Lagrange polynomial} for~$\xpt$ is the unique quadratic that satisfies
+        \begin{equation*}
+            L_i(y^j) = \delta_{i, j}, \quad \text{for~$j \in \set{1, 2, \dots, m}$.}
+        \end{equation*}
+    \end{block}
+
+    \medskip
+
+    The quadratic interpolant~$\objm$ of~$\obj$ on~$\xpt$ is then
+    \begin{equation*}
+        \objm(x) = \sum_{i = 1}^m \obj(y^i) L_i(x).
+    \end{equation*}
+\end{frame}
+
+\section{Well-poisedness of interpolation sets}
+
+\begin{frame}
+    \frametitle{Well-poisedness of interpolation sets}
+
+    Let~$\xpt = \set{y^1, y^2, \dots, y^m}$ be a \alert{poised} interpolation set.
+    For any compact set~$\mathcal{C} \subseteq \R^n$, we can show that
+    \begin{equation*}
+        \max_{x \in \mathcal{C}} \, \abs{\obj(x) - \objm(x)} \le \frac{m \theta \Lambda_0}{6} \max_{1 \le i \le m} \max_{x \in \mathcal{C}} \, \norm{x - y^i}^3,
+    \end{equation*}
+    where~$\theta$ depends only on~$\obj$ and
+    \begin{equation*}
+        \Lambda_0 = \max_{1 \le i \le m} \max_{x \in \mathcal{C}} \, \abs{L_i(x)}.
+    \end{equation*}
+
+    \begin{block}{$\Lambda$-Poisedness~{\parencite[Def.~3.6]{Conn_Scheinberg_Vicente_2009b}}}
+        The interpolation set~$\xpt$ is \alert{$\Lambda$-poised} in a compact set~$\mathcal{C} \subseteq \R^n$ if
+        \begin{equation*}
+            \Lambda \ge \max_{1 \le i \le m} \max_{x \in \mathcal{C}} \, \abs{L_i(x)}.
+        \end{equation*}
+    \end{block}
+
+    Value of~$\Lambda$: \alert{the lower the better}.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Example of~$\Lambda$-poisedness}
+
+    The interpolation set~$\xpt = \set{\textcolor{OliveGreen}{0}, \textcolor{BurntOrange}{1/2}, \textcolor{Maroon}{2}}$ is~$\Lambda$-poised on~$[0, 2]$ for~$\Lambda \ge \Lambda_0 = 4/3$.
+
+    \medskip
+
+    \begin{center}
+        \begin{tikzpicture}
+            \begin{axis}[
+                extra y ticks={4/3},
+                extra y tick labels={$\Lambda_0$},
+                xlabel={$x$},
+                ylabel={$y$},
+                grid,
+            ]
+                \addplot[domain=-0.1:2.1,samples=200,smooth,thick,color=OliveGreen] {x^2-5*x/2+1};
+                \addplot[domain=-0.1:2.1,samples=200,smooth,thick,dashed,color=BurntOrange] {-4*x^2/3+8*x/3};
+                \addplot[domain=-0.1:2.1,samples=200,smooth,thick,dashdotted,color=Maroon] {x^2/3-x/6};
+                \addlegendentry{$L_1(x)$}
+                \addlegendentry{$L_2(x)$}
+                \addlegendentry{$L_3(x)$}
+            \end{axis}
+        \end{tikzpicture}
+    \end{center}
+\end{frame}
+
+\section{Underdetermined interpolation}
+
+\begin{frame}
+    \frametitle{Underdetermined quadratic interpolation}
+    
+    \begin{block}{}
+        To build \alert{one} model, we need~$\mathcal{O}(n^2)$ function evaluations.
+        Can we \alert{use less}?
+    \end{block}
+
+    \medskip
+
+    Let~$\xpt = \set{y^1, y^2, \dots, y^m}$ be a consistent interpolation set with
+    \begin{equation*}
+        m \le \frac{1}{2} (n + 1) (n + 2).
+    \end{equation*}
+
+    An interpolant~$\objm$ of~$\obj$ on~$\xpt$ is defined by
+    \begin{align*}
+        \min        & \quad \mathcal{F}(Q)\\
+        \text{s.t.} & \quad Q(y^i) = \obj(y^i), ~ i \in \set{1, 2, \dots, m},
+    \end{align*}
+    where the \alert{functional}~$\mathcal{F}$ reflects a desired \alert{property} or \alert{regularity} of~$\objm$.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Least Frobenius norm quadratic models}
+
+    The \alert{least Frobenius norm} interpolant~$\objm$ of~$\obj$ on~$\xpt$ is defined by
+    \begin{align*}
+        \min        & \quad \frac{1}{2} \norm{\nabla^2 Q}_{\mathsf{F}}^2    \\
+        \text{s.t.} & \quad Q(y^i) = \obj(y^i), ~ i \in \set{1, 2, \dots, m},
+    \end{align*}
+
+    \begin{block}{}
+        If~$m \le n + 1$, we have~$B = 0$.
+        In practice, we often require that
+        \begin{equation*}
+            n + 2 \le m \le \frac{1}{2} (n + 1) (n + 2).
+        \end{equation*}
+    \end{block}
+
+    \medskip
+
+    The notions of \alert{poisedness} and~\alert{$\Lambda$-poisedness} can be directly adapted.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Least Frobenius norm quadratic models}
+
+    The \alert{KKT conditions} of the variational problem are
+    \begin{empheq}[left=\empheqlbrace]{alignat*=1}
+        & \sum_{i = 1}^m \lambda_i y^i (y^i)^{\T} = B, \quad \sum_{i = 1}^m \lambda_i = 0, \quad \text{and} \quad \sum_{i = 1}^m \lambda_i y^i = 0,\\
+        & c + g^{\T} y^i + \frac{1}{2} (y^i)^{\T} B y^i = \obj(y^i), ~ i \in \set{1, 2, \dots, m}.
+    \end{empheq}
+
+    \begin{block}{}
+        \begin{enumerate}
+            \item This is a \alert{linear system} of~$c$,~$g$, and~$\set{\lambda_1, \lambda_2, \dots, \lambda_m}$.
+            \item The matrix~$B$ can be built from~$\set{\lambda_1, \lambda_2, \dots, \lambda_m}$ and~$\xpt$.
+            \item Only the \alert{right-hand side} of the linear system depends on~$\obj$.
+            \item Instead of storing~$B$, we can store~$\set{\lambda_1, \lambda_2, \dots, \lambda_m}$ and evaluate
+            \begin{equation*}
+                 B x = \sum_{i = 1}^m \lambda_i \big[ (y^i)^{\T} x \big] y^i \quad \text{and} \quad x^{\T} B x = \sum_{i = 1}^m \lambda_i \big[ (y^i)^{\T} x \big]^2.
+            \end{equation*}
+        \end{enumerate}
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Symmetric Broyden update}
+
+    The \alert{least Frobenius norm updating} interpolant~$\objm$ of~$\obj$ on~$\xpt$ is defined by
+    \begin{align*}
+        \min        & \quad \frac{1}{2} \norm{\nabla^2 Q - B_{\text{old}}}_{\mathsf{F}}^2    \\
+        \text{s.t.} & \quad Q(y^i) = \obj(y^i), ~ i \in \set{1, 2, \dots, m},
+    \end{align*}
+    where~$B_{\text{old}}$ is a \alert{prior estimate} of~$B$.
+
+    \begin{block}{}
+        In model-based \alert{DFO methods}, to evaluate~$\objm[k]$, we can set~$B_{\text{old}} = \nabla^2 \objm[k - 1]$.
+    \end{block}
+
+    \medskip
+
+    If~$\objm[\text{old}]$ is such that~$\nabla^2 \objm[\text{old}] = B_{\text{old}}$, then~$\objm - \objm[\text{old}]$ solves
+    \begin{align*}
+        \min        & \quad \frac{1}{2} \norm{\nabla^2 Q}_{\mathsf{F}}^2    \\
+        \text{s.t.} & \quad Q(y^i) = \obj(y^i) - \objm[\text{old}](y^i), ~ i \in \set{1, 2, \dots, m}.
+    \end{align*}
+    These models can then be built as the least Frobenius norm ones.
+\end{frame}
+
+\section{An optimal interpolation set}
+
+\begin{frame}
+    \frametitle{To do}
+    
+    To do.
+\end{frame}
+
+\section{Conclusion}
+
+\begin{frame}
+    \frametitle{Conclusion}
+
+    To do.
+\end{frame}
+
+\appendix
+
+\begin{frame}[t,allowframebreaks]
+    \frametitle{References}
+
+	\printbibliography
+\end{frame}
+
+\end{document}

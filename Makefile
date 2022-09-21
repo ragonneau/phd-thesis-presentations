@@ -18,7 +18,7 @@ LCFLAGS := -file-line-error -halt-on-error -interaction=nonstopmode -shell-escap
 SRC = $(wildcard talk*.tex)
 OBJ = $(basename $(SRC))
 
-main: $(OBJ)
+all: $(OBJ)
 
 %: %.tex
 	$(LC) $(LCFLAGS) $^

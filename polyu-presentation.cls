@@ -13,7 +13,7 @@
 %
 % The Current Maintainer of this work is Tom M. Ragonneau.
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{polyu-presentation}[2022/09/12 PolyU presentation document class]
+\ProvidesClass{polyu-presentation}[2022/09/21 PolyU presentation document class]
 
 % Load beamer class as basis
 \PassOptionsToPackage{usenames,dvipsnames}{xcolor}
@@ -82,6 +82,7 @@
 \RequirePackage{dsfont}
 \RequirePackage{empheq}
 \DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator{\card}{card}
 \newcommand{\R}{\mathds{R}}
 \newcommand{\T}{\mathsf{T}}
 \newcommand{\abs}[2][]{#1\lvert#2#1\rvert}
@@ -98,9 +99,8 @@
 \RequirePackage{pgfplots}
 \RequirePackage{pgfplotstable}
 \RequirePackage{makecell}
-\usetikzlibrary{patterns,decorations.pathreplacing}
+\usetikzlibrary{decorations.pathreplacing,patterns,shapes}
 \pgfplotsset{
-    height=0.5\paperwidth,
     compat=1.18,
 }
 \usepgfplotslibrary{external}
@@ -160,6 +160,7 @@
     style=authoryear-comp,
     sorting=nyt,
     sortcites=false,
+    maxcitenames=2,
 ]{biblatex}
 \setbeamertemplate{bibliography item}[default]
 \defbibenvironment{bibliography}{

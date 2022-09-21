@@ -273,7 +273,7 @@
                 xlabel={$x$},%
                 ylabel={$f(x)$},%
             ]
-                \addplot[domain=0:9,samples=200, smooth] {-x*(sin(360*x/(2*pi))+1)/6+3};
+                \addplot[domain=0:9,samples=200,smooth] {-x*(sin(360*x/(2*pi))+1)/6+3};
                 \draw[color=BurntOrange,fill=BurntOrange] (2.3695,2.32958) circle (0.12);
                 \draw[color=OliveGreen,fill=OliveGreen] (8.09966,0.340649) circle (0.12);
             \end{axis}
@@ -557,7 +557,9 @@
 
 \section{Conclusion}
 
-\begin{frame}{Conclusion}
+\begin{frame}
+    \frametitle{Conclusion}
+    
     In this talk, we presented
     \begin{enumerate}
         \item several \alert{concepts of DFO} and two examples of \alert{applications};
