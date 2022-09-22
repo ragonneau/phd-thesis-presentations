@@ -13,7 +13,7 @@
 %
 % The Current Maintainer of this work is Tom M. Ragonneau.
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{polyu-presentation}[2022/09/21 PolyU presentation document class]
+\ProvidesClass{polyu-presentation}[2022/09/22 PolyU presentation document class]
 
 % Load beamer class as basis
 \PassOptionsToPackage{usenames,dvipsnames}{xcolor}
@@ -83,6 +83,7 @@
 \RequirePackage{empheq}
 \DeclareMathOperator*{\argmin}{arg\,min}
 \DeclareMathOperator{\card}{card}
+\newcommand{\eqdef}{\mathrel{\stackrel{\mathsf{def}}{=}}}
 \newcommand{\R}{\mathds{R}}
 \newcommand{\T}{\mathsf{T}}
 \newcommand{\abs}[2][]{#1\lvert#2#1\rvert}
