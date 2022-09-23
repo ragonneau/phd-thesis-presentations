@@ -33,7 +33,7 @@
 \pgfmathdeclarefunction{ifthenelsefpu}{3}{\pgfmathparse{#1*#2 + !#1*#3}}
 
 \title{Model-Based DFO Methods and Software}
-\subtitle{Talk no.\ 2 \textemdash\ Interpolation models}
+\subtitle{Talk no.\ 2 \textemdash\ DFO Interpolation models}
 \author[Tom M. Ragonneau]{\texorpdfstring{
     Tom M. Ragonneau\\ 
     \footnotesize Co-supervised by Dr.\ Zaikun Zhang and by Prof.\ Xiaojun Chen
@@ -96,7 +96,7 @@
         \end{center}
 
         Here,~$i_1 = 0$,~$i_2 = 1$,~$i_3 = 0$,~$i_4 = 2$, etc.
-        There are~$\binom{n + k}{k}$ \alert{combinations}.
+        There are~$\binom{n + k}{n}$ \alert{combinations}.
     \end{block}
 \end{frame}
 
@@ -151,7 +151,7 @@
     \frametitle{Well-poisedness of interpolation sets}
 
     Let~$\xpt = \set{y^1, y^2, \dots, y^m}$ be a \alert{poised} interpolation set.
-    For any compact set~$\mathcal{C} \subseteq \R^n$, we can show that
+    For any compact set~$\mathcal{C} \subseteq \R^n$, \cite[Eq.~(1.6)]{Powell_2001} provides
     \begin{equation*}
         \max_{x \in \mathcal{C}} \, \abs{\obj(x) - \objm(x)} \le \frac{m \theta \Lambda_{\mathcal{C}}}{6} \max_{1 \le i \le m} \max_{x \in \mathcal{C}} \, \norm{x - y^i}^3,
     \end{equation*}
@@ -276,7 +276,7 @@
     where~$B_{\text{old}}$ is a \alert{prior estimate} of~$B$.
 
     \begin{block}{}
-        In model-based \alert{DFO methods}, to evaluate~$\objm[k]$, we can set~$B_{\text{old}} = \nabla^2 \objm[k - 1]$.
+        In \alert{DFO methods}, to evaluate~$\objm[k]$, we can set~$B_{\text{old}} = \nabla^2 \objm[k - 1]$ \parencite{Powell_2004b}.
     \end{block}
 
     \medskip
@@ -296,7 +296,7 @@
 
     \begin{columns}
         \begin{column}{0.55\textwidth}
-            Let~$\delta > 0$ be \alert{fixed} and let
+            As~\cite{Powell_2006}, let~$\delta > 0$ be \alert{fixed} and let
             \begin{empheq}[left={z^j = \empheqlbrace}]{alignat*=2}
                 & \textcolor{OliveGreen}{0}                 && \quad \text{if~$j = 1$,}\\
                 & \textcolor{BurntOrange}{\delta e_{j - 1}} && \quad \text{if~$2 \le j \le n + 1$,}\\
