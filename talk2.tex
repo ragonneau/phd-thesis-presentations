@@ -33,7 +33,7 @@
 \pgfmathdeclarefunction{ifthenelsefpu}{3}{\pgfmathparse{#1*#2 + !#1*#3}}
 
 \title{Model-Based DFO Methods and Software}
-\subtitle{Talk no.\ 2 \textemdash\ DFO Interpolation models}
+\subtitle[Interpolation models for DFO]{Talk no.\ 2 \textemdash\ Interpolation models for DFO}
 \author[Tom M. Ragonneau]{\texorpdfstring{
     Tom M. Ragonneau\\ 
     \footnotesize Co-supervised by Dr.\ Zaikun Zhang and by Prof.\ Xiaojun Chen
@@ -42,7 +42,7 @@
     Department of Applied Mathematics\\
     The Hong Kong Polytechnic University
 }
-\date{September 26, 2022}
+\date{September 26, 2022 (Revised on September 26, 2022)}
 \titlegraphic{}
 
 \begin{document}
@@ -53,6 +53,7 @@
 
 \begin{frame}
     \frametitle{Table of contents}
+
 	\tableofcontents[hideallsubsections]
 \end{frame}
 
@@ -60,6 +61,30 @@
 
 \begin{frame}
     \frametitle{Interpolation models for DFO}
+    
+	In \alert{model-based DFO methods}, to solve
+    \begin{equation*}
+        \min_{x \in \R^n} \obj(x),
+    \end{equation*}
+    we need to build iteratively \alert{models}~$\objm[k]$ of~$\obj$ using \alert{only function values}.
+
+    \medskip
+
+    \begin{block}{}
+        We focus on \alert{polynomial interpolation}, i.e.,~$\objm[k]$ is a polynomial.
+    \end{block}
+
+    \medskip
+
+    \begin{enumerate}
+        \item Other schemes exist, e.g., \alert{regression}.
+        \item Other types of interpolants exist, e.g., \alert{RBFs}.
+        \item In constrained optimization, we may also build models of the constraints.
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Polynomial interpolation}
     
     A polynomial~$\objm$ \alert{interpolates}~$\obj$ on~$\xpt \subseteq \R^n$ if
     \begin{equation*}
@@ -105,11 +130,11 @@
 
     We focus on the \alert{quadratic} interpolants
     \begin{equation*}
-        \objm(x) = \textcolor{OliveGreen}{c} + \textcolor{BurntOrange}{g}^{\T} x + \frac{1}{2} x^{\T} \textcolor{Maroon}{B} x.
+        \objm(x) = \textcolor{OliveGreen}{c} + \textcolor{BurntOrange}{g}^{\T} x + \frac{1}{2} x^{\T} \textcolor{Maroon}{H} x.
     \end{equation*}
 
-    \begin{block}{Poisedness~{\parencite[Def.~3.1]{Conn_Scheinberg_Vicente_2009b}}}
-        The interpolation set~$\xpt \subseteq \R^n$ is \alert{poised} if for all~$\obj$ there exists a \alert{unique} quadratic interpolant~$\objm$ such that
+    \begin{block}{Poisedness~{\parencite{Conn_Scheinberg_Vicente_2009b}}}
+        The interpolation set~$\xpt \subseteq \R^n$ is \alert{poised} for quadratic interpolation if for all~$\obj$ there exists a \alert{unique} quadratic interpolant~$\objm$ such that
         \begin{equation*}
             \objm(y) = \obj(y), \quad \text{for~$y \in \xpt$.}
         \end{equation*}
@@ -131,9 +156,9 @@
     \medskip
     
     \begin{block}{Lagrange polynomials}
-        The~$i$th \alert{Lagrange polynomial} for~$\xpt$ is the unique quadratic that satisfies
+        The~$j$th \alert{Lagrange polynomial}~$L_j$ for~$\xpt$ is the unique quadratic that satisfies
         \begin{equation*}
-            L_i(y^j) = \delta_{i, j}, \quad \text{for~$j \in \set{1, 2, \dots, m}$.}
+            L_j(y^i) = \delta_{i, j}, \quad \text{for~$i \in \set{1, 2, \dots, m}$.}
         \end{equation*}
     \end{block}
 
@@ -151,7 +176,7 @@
     \frametitle{Well-poisedness of interpolation sets}
 
     Let~$\xpt = \set{y^1, y^2, \dots, y^m}$ be a \alert{poised} interpolation set.
-    For any compact set~$\mathcal{C} \subseteq \R^n$, \cite[Eq.~(1.6)]{Powell_2001} provides
+    For any compact set~$\mathcal{C} \subseteq \R^n$, \cite{Powell_2001} provides
     \begin{equation*}
         \max_{x \in \mathcal{C}} \, \abs{\obj(x) - \objm(x)} \le \frac{m \theta \Lambda_{\mathcal{C}}}{6} \max_{1 \le i \le m} \max_{x \in \mathcal{C}} \, \norm{x - y^i}^3,
     \end{equation*}
@@ -160,8 +185,8 @@
         \Lambda_{\mathcal{C}} \eqdef \max_{1 \le i \le m} \max_{x \in \mathcal{C}} \, \abs{L_i(x)}.
     \end{equation*}
 
-    \begin{block}{$\Lambda$-Poisedness~{\parencite[Def.~3.6]{Conn_Scheinberg_Vicente_2009b}}}
-        The interpolation set~$\xpt$ is \alert{$\Lambda$-poised} in a compact set~$\mathcal{C} \subseteq \R^n$ if~$\Lambda \ge \Lambda_{\mathcal{C}}    $.
+    \begin{block}{$\Lambda$-Poisedness~{\parencite{Conn_Scheinberg_Vicente_2009b}}}
+        The interpolation set~$\xpt$ is \alert{$\Lambda$-poised} in a compact set~$\mathcal{C} \subseteq \R^n$ if~$\Lambda \ge \Lambda_{\mathcal{C}}$.
     \end{block}
 
     \medskip
@@ -181,6 +206,8 @@
             \begin{axis}[
                 extra y ticks={4/3},
                 extra y tick labels={$\Lambda_{\mathcal{C}}$},
+                % ymax=1.8,
+                legend pos=outer north east,
                 xlabel={$x$},
                 ylabel={$y$},
                 grid,
@@ -203,7 +230,8 @@
     
     \begin{block}{}
         To build \alert{one} model, we need~$\mathcal{O}(n^2)$ function evaluations.
-        Can we \alert{use less}?
+        In DFO methods, we \alert{recycle} most interpolation points from \alert{previous iterations}.
+        However, can we \alert{use less} evaluations at the first iteration?
     \end{block}
 
     \medskip
@@ -226,40 +254,57 @@
 
     The \alert{least Frobenius norm} interpolant~$\objm$ of~$\obj$ on~$\xpt$ is defined by
     \begin{align*}
-        \min        & \quad \frac{1}{2} \norm{\nabla^2 Q}_{\mathsf{F}}^2    \\
+        \min        & \quad \frac{1}{2} \norm{\nabla^2 Q}_{\mathsf{F}}^2\\
         \text{s.t.} & \quad Q(y^i) = \obj(y^i), ~ i \in \set{1, 2, \dots, m},
     \end{align*}
 
     \begin{block}{}
         If~$m \le n + 1$, we have~$B = 0$.
-        In practice, we often require that
+        In practice, we require that
         \begin{equation*}
             n + 2 \le m \le \frac{1}{2} (n + 1) (n + 2).
         \end{equation*}
     \end{block}
 
-    \medskip
-
-    The notions of \alert{poisedness} and~\alert{$\Lambda$-poisedness} can be directly adapted.
+    \begin{block}{Poisedness~{\parencite{Conn_Scheinberg_Vicente_2009b}}}
+        The interpolation set~$\xpt \subseteq \R^n$ is \alert{poised} in the least Frobenius norm sense if for all~$\obj$ there exists a \alert{unique} such quadratic interpolant~$\objm$.
+    \end{block}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Least Frobenius norm quadratic models}
+    \frametitle{$\Lambda$-poisedness in the least Frobenius norm sense}
+
+    \begin{block}{Lagrange polynomials}
+        The~$j$th \alert{Lagrange polynomial}~$L_j$ for~$\xpt$ in the least Frobenius norm sense is the unique quadratic that solves the variational problem with~$\obj(y^i) = \delta_{i, j}$.
+    \end{block}
+
+    \medskip
+
+    \begin{block}{$\Lambda$-Poisedness~{\parencite{Conn_Scheinberg_Vicente_2009b}}}
+        The interpolation set~$\xpt$ is \alert{$\Lambda$-poised} in the least Frobenius norm sense in a compact set~$\mathcal{C} \subseteq \R^n$ if
+        \begin{equation*}
+            \Lambda \ge \max_{1 \le i \le m} \max_{x \in \mathcal{C}} \, \abs{L_i(x)}.
+        \end{equation*}
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Building least Frobenius norm quadratic models}
 
     The \alert{KKT conditions} of the variational problem are
     \begin{empheq}[left=\empheqlbrace]{alignat*=1}
-        & \sum_{i = 1}^m \lambda_i y^i (y^i)^{\T} = B, \quad \sum_{i = 1}^m \lambda_i = 0, \quad \text{and} \quad \sum_{i = 1}^m \lambda_i y^i = 0,\\
-        & c + g^{\T} y^i + \frac{1}{2} (y^i)^{\T} B y^i = \obj(y^i), ~ i \in \set{1, 2, \dots, m}.
+        & \sum_{i = 1}^m \lambda_i y^i (y^i)^{\T} = H, \quad \sum_{i = 1}^m \lambda_i = 0, \quad \text{and} \quad \sum_{i = 1}^m \lambda_i y^i = 0,\\
+        & c + g^{\T} y^i + \frac{1}{2} (y^i)^{\T} H y^i = \obj(y^i), ~ i \in \set{1, 2, \dots, m}.
     \end{empheq}
 
     \begin{block}{}
         \begin{enumerate}
             \item This is a \alert{linear system} of~$c$,~$g$, and~$\set{\lambda_1, \lambda_2, \dots, \lambda_m}$.
-            \item The matrix~$B$ can be built from~$\set{\lambda_1, \lambda_2, \dots, \lambda_m}$ and~$\xpt$.
+            \item The matrix~$H$ can be built from~$\set{\lambda_1, \lambda_2, \dots, \lambda_m}$ and~$\xpt$.
             \item Only the \alert{right-hand side} of the linear system depends on~$\obj$.
-            \item Instead of storing~$B$, we can store~$\set{\lambda_1, \lambda_2, \dots, \lambda_m}$ and evaluate
+            \item Instead of storing~$H$, we can store~$\set{\lambda_1, \lambda_2, \dots, \lambda_m}$ and evaluate
             \begin{equation*}
-                 B x = \sum_{i = 1}^m \lambda_i \big[ (y^i)^{\T} x \big] y^i \quad \text{and} \quad x^{\T} B x = \sum_{i = 1}^m \lambda_i \big[ (y^i)^{\T} x \big]^2.
+                 H x = \sum_{i = 1}^m \lambda_i \big[ (y^i)^{\T} x \big] y^i \quad \text{and} \quad x^{\T} H x = \sum_{i = 1}^m \lambda_i \big[ (y^i)^{\T} x \big]^2.
             \end{equation*}
         \end{enumerate}
     \end{block}
@@ -270,23 +315,22 @@
 
     The \alert{least Frobenius norm updating} interpolant~$\objm$ of~$\obj$ on~$\xpt$ is defined by
     \begin{align*}
-        \min        & \quad \frac{1}{2} \norm{\nabla^2 Q - B_{\text{old}}}_{\mathsf{F}}^2    \\
+        \min        & \quad \frac{1}{2} \norm{\nabla^2 Q - H_{\text{old}}}_{\mathsf{F}}^2    \\
         \text{s.t.} & \quad Q(y^i) = \obj(y^i), ~ i \in \set{1, 2, \dots, m},
     \end{align*}
-    where~$B_{\text{old}}$ is a \alert{prior estimate} of~$B$.
+    where~$H_{\text{old}}$ is a \alert{prior estimate} of~$H$.
 
     \begin{block}{}
-        In \alert{DFO methods}, to evaluate~$\objm[k]$, we can set~$B_{\text{old}} = \nabla^2 \objm[k - 1]$ \parencite{Powell_2004b}.
+        In \alert{DFO methods}, to evaluate~$\objm[k]$, we can set~$H_{\text{old}} = \nabla^2 \objm[k - 1]$ \parencite{Powell_2004b}.
     \end{block}
 
-    \medskip
-
-    If~$\objm[\text{old}]$ is such that~$\nabla^2 \objm[\text{old}] = B_{\text{old}}$, then~$\objm - \objm[\text{old}]$ solves
+    If~$\objm[\text{old}]$ is such that~$\nabla^2 \objm[\text{old}] = H_{\text{old}}$, then~$\objm - \objm[\text{old}]$ solves
     \begin{align*}
         \min        & \quad \frac{1}{2} \norm{\nabla^2 Q}_{\mathsf{F}}^2    \\
         \text{s.t.} & \quad Q(y^i) = \obj(y^i) - \objm[\text{old}](y^i), ~ i \in \set{1, 2, \dots, m}.
     \end{align*}
-    These models can then be built as the least Frobenius norm ones.
+
+    It is similar to least-change updates for quasi-Newton methods.
 \end{frame}
 
 \section{An optimal interpolation set}
@@ -305,9 +349,9 @@
 
             \smallskip
 
-            We consider the interpolation set
+            Used as \alert{initial interpolation set} if DFO methods, we consider
             \begin{equation*}
-                \mathcal{Z}_m = \set{z^1, z^2, \dots, z^m}.
+                \mathcal{Z}_m = \set{z^1, z^2, \dots, z^m},
             \end{equation*}
 
             \smallskip
@@ -322,31 +366,21 @@
                 \begin{tikzpicture}
                     \begin{axis}[
                         axis equal image,
-                        xmin=-1.1,
-                        xmax=1.1,
-                        ymin=-1.1,
-                        ymax=1.1,
-                        zmin=-1.1,
-                        zmax=1.1,
                         xtick={-1,0,1},
                         ytick={-1,0,1},
-                        ztick={-1,0,1},
                         xticklabels={$-\delta$,$0$,$\delta$},
                         yticklabels={$-\delta$,$0$,$\delta$},
-                        zticklabels={$-\delta$,$0$,$\delta$},
                         xlabel={$x_1$},
                         ylabel={$x_2$},
-                        zlabel={$x_3$},
+                        width=\textwidth,
                     ]
-                        \addplot3[only marks,mark options={fill=OliveGreen}] coordinates{(0, 0, 0)};
-                        \addplot3[only marks,mark options={fill=BurntOrange}] coordinates{(1, 0, 0) (0, 1, 0) (0, 0, 1)};
-                        \addplot3[only marks,mark options={fill=Maroon}] coordinates{(-1, 0, 0) (0, -1, 0) (0, 0, -1)};
-                        \addplot3[no marks] coordinates{(0, 0, 0) (1, 0, 0)};
-                        \addplot3[no marks] coordinates{(0, 0, 0) (0, 1, 0)};
-                        \addplot3[no marks] coordinates{(0, 0, 0) (0, 0, 1)};
-                        \addplot3[no marks] coordinates{(0, 0, 0) (-1, 0, 0)};
-                        \addplot3[no marks] coordinates{(0, 0, 0) (0, -1, 0)};
-                        \addplot3[no marks] coordinates{(0, 0, 0) (0, 0, -1)};
+                        \addplot[only marks,mark options={fill=OliveGreen}] coordinates{(0, 0)};
+                        \addplot[only marks,mark options={fill=BurntOrange}] coordinates{(1, 0) (0, 1)};
+                        \addplot[only marks,mark options={fill=Maroon}] coordinates{(-1, 0) (0, -1)};
+                        \addplot[no marks] coordinates{(0, 0) (1, 0)};
+                        \addplot[no marks] coordinates{(0, 0) (0, 1)};
+                        \addplot[no marks] coordinates{(0, 0) (-1, 0)};
+                        \addplot[no marks] coordinates{(0, 0) (0, -1)};
                     \end{axis}  
                 \end{tikzpicture}
             \end{center}
@@ -371,12 +405,14 @@
     \begin{columns}
         \begin{column}{0.5\textwidth}
             \begin{center}
-                \begin{tikzpicture}[scale=0.55]
+                \begin{tikzpicture}
                     \begin{axis}[
                         colormap/viridis,
+                        title={Case~$m = n + 2$ with~$n = 2$},
                         xlabel={$x_1$},
                         ylabel={$x_2$},
-                        zlabel={$L_1(x)$ with~$m = n + 2$},
+                        zlabel={$L_1(x)$},
+                        width=0.7\textwidth,
                     ]
                         \addplot3[
                             domain=-1:1,
@@ -390,12 +426,14 @@
         \end{column}
         \begin{column}{0.5\textwidth}
             \begin{center}
-                \begin{tikzpicture}[scale=0.55]
+                \begin{tikzpicture}
                     \begin{axis}[
                         colormap/viridis,
+                        title={Case~$m = 2n + 1$ with~$n = 2$},
                         xlabel={$x_1$},
                         ylabel={$x_2$},
-                        zlabel={$L_1(x)$ with~$m = 2n + 1$},
+                        zlabel={$L_1(x)$},
+                        width=0.7\textwidth,
                     ]
                         \addplot3[
                             domain=-1:1,
@@ -414,7 +452,7 @@
     \frametitle{Bounds for the~$\Lambda$-poisedness of~$\mathcal{Z}_m$}
 
     \begin{block}{}
-        For any~$m$ and any~$p \in [0, \infty]$, we have
+        For any~$m$ and any~$p \in [1, \infty]$, we have
         \begin{equation*}
             1 + (2n + 1 - m)^{\frac{p - 1}{p}} \le \Lambda_p \le n,
         \end{equation*}
@@ -449,31 +487,35 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Some special cases and remarks}
+    \frametitle{Special cases and remarks}
 
-    \begin{block}{}
-        For any~$m$, we have
-        \begin{empheq}[left={\Lambda_p = \empheqlbrace}]{alignat*=2}
-            & 2                             && \quad \text{if~$p = 1$ and~$n + 2 \le m \le 2n$,}\\
-            & 1                             && \quad \text{if~$p = 1$ and~$n = 2n + 1$,}\\
-            & 1 + \sqrt{2n + 1 - m}         && \quad \text{if~$p = 2$,}\\
-            & \max \set{2n + 2 - m, n - 1}  && \quad \text{if~$p = \infty$.}
-        \end{empheq}
-    \end{block}
+    % \begin{block}{}
+    %     For any~$m$, we have
+    %     \begin{empheq}[left={\Lambda_p = \empheqlbrace}]{alignat*=2}
+    %         & 2                             && \quad \text{if~$p = 1$ and~$n + 2 \le m \le 2n$,}\\
+    %         & 1                             && \quad \text{if~$p = 1$ and~$n = 2n + 1$,}\\
+    %         & 1 + \sqrt{2n + 1 - m}         && \quad \text{if~$p = 2$,}\\
+    %         & \max \set{2n + 2 - m, n - 1}  && \quad \text{if~$p = \infty$.}
+    %     \end{empheq}
+    % \end{block}
 
     \begin{block}{}
         For any~$p \in [1, \infty]$, if~$m = 2n + 1$, then
         \begin{equation*}
             \Lambda_p = \max \set[\big]{1, n^{\frac{p - 2}{p}} - 1}.
         \end{equation*}
+        In particular, for any~$p \in [1, 2]$, then
+        \begin{equation*}
+            \Lambda_p = 1.
+        \end{equation*}
     \end{block}
 
-    \smallskip
+    \medskip
 
     \begin{enumerate}
-        \item $\mathcal{Z}_{2n + 1}$ is \alert{optimal} in~$\mathcal{B}_p(\delta)$ for~$p \in [1, 2]$ because~$\Lambda_p = 1$.
-        \item $m = 2n + 1$ is optimal for~$\mathcal{Z}_m$ when~$p \in [1, 2]$.
-        \item \alert{Conjecture}: $m = 2n + 1$ is optimal for~$\mathcal{Z}_m$ for all~$p \in [0, \infty]$.
+        \item $\mathcal{Z}_{2n + 1}$ is an \alert{optimal interpolation set} in~$\mathcal{B}_p(\delta)$ for~$p \in [1, 2]$.
+        \item In particular,~$m = 2n + 1$ is optimal for~$\mathcal{Z}_m$ when~$p \in [1, 2]$.
+        \item \alert{Conjecture}: $m = 2n + 1$ is optimal for~$\mathcal{Z}_m$ for all~$p \in [1, \infty]$.
     \end{enumerate}
 \end{frame}
 
@@ -497,7 +539,7 @@
 
 \appendix
 
-\begin{frame}[t,allowframebreaks]
+\begin{frame}[t]
     \frametitle{References}
 
 	\printbibliography
