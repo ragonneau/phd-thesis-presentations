@@ -13,7 +13,7 @@
 %
 % The Current Maintainer of this work is Tom M. Ragonneau.
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{polyu-presentation}[2022/09/22 PolyU presentation document class]
+\ProvidesClass{polyu-presentation}[2022/09/30 PolyU presentation document class]
 
 % Load beamer class as basis
 \PassOptionsToPackage{usenames,dvipsnames}{xcolor}
@@ -31,13 +31,13 @@
 \setbeamertemplate{footline}{
     \leavevmode%
     \hbox{%
-        \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+        \begin{beamercolorbox}[wd=0.333333\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
             \usebeamerfont{author in head/foot}\insertshortauthor~(\insertshortinstitute)
         \end{beamercolorbox}%
-        \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+        \begin{beamercolorbox}[wd=0.333333\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
             \usebeamerfont{title in head/foot}\insertshorttitle
         \end{beamercolorbox}%
-        \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,right]{date in head/foot}%
+        \begin{beamercolorbox}[wd=0.333333\paperwidth,ht=2.25ex,dp=1ex,right]{date in head/foot}%
             \usebeamerfont{date in head/foot}\insertshortsubtitle\hspace*{2em}
             \usebeamertemplate{page number in head/foot}\hspace*{2ex}
         \end{beamercolorbox}%
@@ -55,6 +55,7 @@
 % Latin fonts
 \RequirePackage[T1]{fontenc}
 \RequirePackage{fontspec}
+\RequirePackage{csquotes}
 \setsansfont{FiraSans}[
     Path=fonts/fira-sans/,
     Extension=.otf,
@@ -83,6 +84,8 @@
 \RequirePackage{empheq}
 \DeclareMathOperator*{\argmin}{arg\,min}
 \DeclareMathOperator{\card}{card}
+\DeclareMathOperator{\diam}{diam}
+\DeclareMathOperator{\rank}{rank}
 \newcommand{\eqdef}{\mathrel{\stackrel{\mathsf{def}}{=}}}
 \newcommand{\R}{\mathds{R}}
 \newcommand{\T}{\mathsf{T}}
@@ -100,7 +103,7 @@
 \RequirePackage{pgfplots}
 \RequirePackage{pgfplotstable}
 \RequirePackage{makecell}
-\usetikzlibrary{decorations.pathreplacing,patterns,shapes}
+\usetikzlibrary{decorations.pathreplacing,overlay-beamer-styles,patterns,shapes}
 \pgfplotsset{
     compat=1.18,
 }
@@ -150,6 +153,42 @@
 \newcommand{\commfont}[1]{\ttfamily\textcolor{OliveGreen}{#1}}
 \SetCommentSty{commfont}
 
+% Listings environments
+\usepackage[final]{listings}
+\usepackage{lstautogobble}
+\lstset{
+    autogobble=true,
+    basicstyle=\normalsize\ttfamily,
+    belowcaptionskip=\bigskipamount,
+    breakautoindent=true,
+    breakatwhitespace=false,
+    breaklines=true,
+    commentstyle=\itshape\color{black!50},
+    frame=none,
+    keywordstyle=\bfseries\color{Maroon},
+    % numbers=left,
+    % numberstyle=\scriptsize\bfseries,
+    postbreak=\space,
+    showstringspaces=false,
+    stepnumber=1,
+    stringstyle=\itshape,
+    tabsize=4,
+}
+\lstnewenvironment{lstmatlab}[1][]{
+    \lstset{
+        language=matlab,
+        % morekeywords={},
+        #1,
+    }
+}{}
+\lstnewenvironment{lstpython}[1][]{
+    \lstset{
+        language=python,
+        % morekeywords={},
+        #1,
+    }
+}{}
+
 % Set up SI units
 \RequirePackage{siunitx}
 \sisetup{
@@ -158,7 +197,8 @@
 
 % Bibliography information processing
 \usepackage[
-    style=authoryear-comp,
+    style=ext-authoryear-comp,
+    articlein=false,
     sorting=nyt,
     sortcites=false,
     maxcitenames=2,

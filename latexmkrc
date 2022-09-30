@@ -25,4 +25,4 @@ push @generated_exts, "xdv";
 $bibtex_use = 2;
 
 # Remove extra extensions on clean
-$clean_ext = "auxlock nav run.xml snm synctex.gz";
+$clean_ext = "auxlock nav run.xml snm synctex.gz vrb";

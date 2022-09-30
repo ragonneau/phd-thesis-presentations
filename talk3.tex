@@ -1,0 +1,494 @@
+%% talk3.tex
+%% Copyright 2022 Tom M. Ragonneau
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+%
+% This work has the LPPL maintenance status `maintained'.
+%
+% The Current Maintainer of this work is Tom M. Ragonneau.
+\documentclass{polyu-presentation}
+\usepackage[final]{microtype}
+\usepackage{booktabs}
+
+% List of hyphenation exceptions for US English
+% Source: https://ctan.org/tex-archive/info/digests/tugboat/hyphenex
+\input{ushyphex}
+
+% Bibliographical resources
+\addbibresource{ragonneau-bib/strings.bib}
+\addbibresource{ragonneau-bib/optim.bib}
+
+% Dedicated mathematical macros
+\newcommand{\aub}{A}
+\newcommand{\bub}{b}
+\newcommand{\con}[1]{c_{#1}}
+\newcommand{\conm}[2][]{\hat{c}_{#2}\ifthenelse{\equal{#1}{}}{}{^{#1}}}
+\newcommand{\iub}{\mathcal{I}}
+\newcommand{\obj}{f}
+\newcommand{\objm}[1][]{\hat{f}\ifthenelse{\equal{#1}{}}{}{^{#1}}}
+\newcommand{\xl}{l}
+\newcommand{\xpt}[1][]{\mathcal{Y}\ifthenelse{\equal{#1}{}}{}{^{#1}}}
+\newcommand{\xu}{u}
+
+% Performance and data profiles
+\usepackage{xstring}
+\newcommand{\drawprofiles}[4]{%
+    \def\selectsolvers{#2}%
+    \def\selectcsv{figures/#3}%
+    \def\selectprofile{#4}%
+    \ifthenelse{\equal{#1}{performance}}{%
+        \def\selectxlabel{$\log_2(\alpha)$}%
+        \def\selectylabel{Performance profiles~$\rho_s(\alpha)$}%
+    }{%
+        \def\selectxlabel{Number of simplex gradients~$\alpha$}%
+        \def\selectylabel{Data profiles~$d_s(\alpha)$}%
+    }
+    \input{figures/profiles.tex}%
+}
+\newcommand{\drawperformanceprofiles}[3]{\drawprofiles{performance}{#1}{#2}{#3}}
+\newcommand{\drawdataprofiles}[3]{\drawprofiles{data}{#1}{#2}{#3}}
+
+\title{Model-Based DFO Methods and Software}
+\subtitle[Development of the PDFO package]{Talk no.\ 3 \textemdash\ Development of the PDFO package}
+\author[Tom M. Ragonneau]{\texorpdfstring{
+    Tom M. Ragonneau\\ 
+    \footnotesize Co-supervised by Dr.\ Zaikun Zhang and by Prof.\ Xiaojun Chen
+}{Tom M. Ragonneau}}
+\institute[PolyU AMA]{
+    Department of Applied Mathematics\\
+    The Hong Kong Polytechnic University
+}
+\date{October 10, 2022}
+\titlegraphic{}
+
+\begin{document}
+
+\begin{frame}
+	\titlepage
+\end{frame}
+
+\begin{frame}
+    \frametitle{Table of contents}
+
+	\tableofcontents[hideallsubsections]
+\end{frame}
+
+\section{Introduction and motivation}
+
+\begin{frame}
+    \frametitle{Powell's DFO solvers}
+
+	We want to solve
+    \begin{equation*}
+        \min_{x \in \Omega \subseteq \R^n} \obj(x),
+    \end{equation*}
+    where \alert{derivatives} of~$\obj$ (and the functions underlying~$\Omega$) are \alert{unknown}.
+
+    \smallskip
+
+    \begin{center}
+        \begin{tabular}{lll}
+            \toprule
+            Solver  & Feasible set~$\Omega$                                 & References\\
+            \midrule
+            UOBYQA  & $\R^n$                                                & \cite{Powell_2002}\\
+            NEWUOA  & $\R^n$                                                & \cite{Powell_2006,Powell_2008}\\
+            BOBYQA  & $\set{x \in \R^n : \xl \le x \le \xu}$                & \cite{Powell_2009}\\
+            LINCOA  & $\set{x \in \R^n : \aub x \le \bub}$                  & \cite{Powell_2015}\\
+            COBYLA  & $\set{x \in \R^n : \con{i}(x) \ge 0, ~ i \in \iub}$   & \cite{Powell_1994}\\
+            \bottomrule
+        \end{tabular}
+    \end{center}
+
+    \begin{block}{An obstacle to using Powell's DFO solvers}
+        Powell implemented them in \alert{Fortran 77}\dots
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{The need for PDFO}
+
+    \begin{block}{}
+        \alert{PDFO} is a \alert{cross-platform} package providing \alert{MATLAB and Python} interfaces for using Powell's DFO solvers (as of v1.2).
+    \end{block}
+
+    \medskip
+
+    \begin{enumerate}
+        \item \alert{MATLAB} signature consistent with \texttt{fmincon}.
+        \item \alert{Python} signature consistent with \texttt{scipy.optimize.minimize}.
+        \item \alert{Open-source} and distributed under the LGPLv3+ license.
+    \end{enumerate}
+
+    \medskip
+    
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{center}
+                \includegraphics[width=1in]{images/qr-codes/pdfo.png}
+
+                \footnotesize\url{https://www.pdfo.net/}
+            \end{center}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{center}
+                \includegraphics[width=1in]{images/qr-codes/pdfo-github.png}
+
+                \footnotesize\url{https://github.com/pdfo/pdfo}
+            \end{center}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\section{Overview of Powell's DFO methods}
+
+\begin{frame}
+    \frametitle{Overview of Powell's DFO methods}
+
+	They are all \alert{trust-region} methods and solve iteratively
+    \begin{align*}
+        \min_{x \in \R^n}   & \quad \objm[k](x)\\
+        \text{s.t.}         & \quad x \in \Omega^k,\\
+                            & \quad \norm{x - x^k} \le \Delta^k,
+    \end{align*}
+    where~$\objm[k]$ is a \alert{linear or quadratic} interpolation model of~$\obj$ on~$\xpt[k] \subseteq \R^n$ and
+    \begin{empheq}[left={\Omega^k = \empheqlbrace}]{alignat*=2}
+        & \set{x \in \R^n : \conm[k]{i}(x) \ge 0}   && \quad \text{for COBYLA,}\\
+        & \Omega                                    && \quad \text{for the others,}
+    \end{empheq}
+    with~$\conm[k]{i}$ being a \alert{linear} interpolation model of~$\con{i}$ on~$\xpt[k]$.
+\end{frame}
+
+\begin{frame}
+    \frametitle{COBYLA~\parencite{Powell_1994}}
+
+	COBYLA builds~$\objm[k]$ and~$\conm[k]{i}$ by \alert{linear interpolation} on~$\xpt[k]$ with
+    \begin{equation*}
+        \card(\xpt[k]) = n + 1.
+    \end{equation*}
+
+    \begin{block}{}
+        The \alert{trust-region subproblem} is solved exactly, and if
+        \begin{equation*}
+            \set{x \in \R^n : \conm[k]{i}(x) \ge 0} \cap \set{x \in \R^n : \norm{x - x^k} \le \Delta^k} = \emptyset,
+        \end{equation*}
+        then the \alert{trial point} solves approximately
+        \begin{align*}
+            \min_{x \in \R^n}   & \quad \max_{i \in \iub} \, [\conm[k]{i}(x)]_{-}\\
+            \text{s.t.}         & \quad \norm{x - x^k} \le \Delta^k.
+        \end{align*}
+    \end{block}
+
+    \medskip
+
+    The trial point \alert{replaces} a point in~$\xpt[k]$ to obtain~$\xpt[k + 1]$.
+\end{frame}
+
+\begin{frame}
+    \frametitle{COBYLA~\parencite{Powell_1994}}
+
+    \begin{block}{What if~$\xpt[k + 1]$ is (almost) not poised?}
+        $\xpt[k + 1]$ is poised iff the \alert{volume} of the simplex engendered by~$\xpt[k + 1]$ is \alert{nonzero}.
+    \end{block}
+
+    \bigskip
+
+    At the \alert{end} of a trust-region iteration,
+
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{center}
+                \begin{tikzpicture}
+                    \begin{axis}[
+                        axis equal image,
+                        axis lines=none,
+                    ]
+                        \addplot3[only marks] coordinates{(0, 0, 0) (0, 0, -1.5) (0, 2, -1.5)};
+                        \addplot3[only marks,visible on=<1>] coordinates{(-1, 1, -1)};
+                        \addplot3[only marks,mark options={fill=Maroon},visible on=<2->] coordinates{(-1, 1, -1)};
+                        \addplot3[only marks,mark options={fill=OliveGreen},visible on=<4>] coordinates{(-2, 1, -1)};
+        
+                        \addplot3[no marks] coordinates{(0, 0, 0) (0, 0, -1.5)};
+                        \addplot3[no marks] coordinates{(0, 0, 0) (0, 2, -1.5)};
+                        \addplot3[no marks] coordinates{(0, 0, -1.5) (0, 2, -1.5)};
+                        \addplot3[no marks,visible on=<1-3>] coordinates{(0, 0, 0) (-1, 1, -1)};
+                        \addplot3[no marks,visible on=<1-3>] coordinates{(-1, 1, -1) (0, 0, -1.5)};
+                        \addplot3[no marks,densely dotted,visible on=<1-3>] coordinates{(-1, 1, -1) (0, 2, -1.5)};
+                        \addplot3[no marks,RoyalPurple,visible on=<3>] coordinates{(-3, 1, -1) (-1, 1, -1)};
+                        \addplot3[no marks,densely dotted,RoyalPurple,visible on=<3>] coordinates{(-1, 1, -1) (0, 1, -1)};
+                        \addplot3[no marks,RoyalPurple,visible on=<3->] coordinates{(0, 1, -1) (2, 1, -1)};
+                        \addplot3[no marks,visible on=<4>] coordinates{(0, 0, 0) (-2, 1, -1)};
+                        \addplot3[no marks,visible on=<4>] coordinates{(0, 0, 0) (-2, 1, -1)};
+                        \addplot3[no marks,visible on=<4>] coordinates{(-2, 1, -1) (0, 0, -1.5)};
+                        \addplot3[no marks,densely dotted,visible on=<4>] coordinates{(-2, 1, -1) (0, 2, -1.5)};
+                        \addplot3[no marks,RoyalPurple,visible on=<4>] coordinates{(-3, 1, -1) (-2, 1, -1)};
+                        \addplot3[no marks,densely dotted,RoyalPurple,visible on=<4>] coordinates{(-2, 1, -1) (0, 1, -1)};
+                    \end{axis}  
+                \end{tikzpicture}
+            \end{center}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{enumerate}[<+->]
+                \item given a bad set~$\xpt[k + 1]$,
+                \item \textcolor{Maroon}{pick a point to remove from~$\xpt[k + 1]$},
+                \item \textcolor{RoyalPurple}{it is replaced with a point on the direction perpendicular to the face of~$\xpt[k + 1]$ that is to the opposite of the removed point},
+                \item \textcolor{OliveGreen}{to build a better~$\xpt[k + 1]$}.
+            \end{enumerate}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}
+    \frametitle{UOBYQA~\parencite{Powell_2002}}
+
+	UOBYQA builds~$\objm[k]$ by \alert{quadratic interpolation} on~$\xpt[k]$ with
+    \begin{equation*}
+        \card(\xpt[k]) = \frac{1}{2} (n + 1) (n + 2).
+    \end{equation*}
+
+    \begin{block}{}
+        The \alert{trust-region subproblem} is approximately solved using the algorithm of~\cite{More_Sorensen_1983}.
+        It is based on the \alert{crucial property} that~$x^{\ast}$ is a solution to the trust-region subproblem iff there exists~$\lambda^{\ast} \ge 0$ such that
+        \begin{empheq}[left={\empheqlbrace}]{alignat*=1}
+            & (\nabla^2 \objm[k] + \lambda^{\ast} I_n) (x^{\ast} - x^k) = -\nabla \objm[k](x^k),\\
+            & \norm{x^{\ast} - x^k} \le \Delta^k,\\
+            & \lambda^{\ast} (\Delta^k - \norm{x^{\ast} - x^k}) = 0,\\
+            & \nabla^2 \objm[k] \succcurlyeq -\lambda^{\ast} I_n.
+        \end{empheq}
+    \end{block}
+
+    \medskip
+
+    The trial point \alert{replaces} a point in~$\xpt[k]$ to obtain~$\xpt[k + 1]$.
+\end{frame}
+
+\begin{frame}
+    \frametitle{UOBYQA~\parencite{Powell_2002}}
+
+    \begin{block}{What if~$\xpt[k + 1]$ is (almost) not poised?}
+        Let B be the coefficient matrix of the interpolation system on~$\xpt[k + 1]$, and let~$B_y(x)$ be be that on~$(\xpt[k + 1] \setminus \set{y}) \cup \set{x}$ with~$y \in \xpt[k + 1]$.
+        \cite{Powell_2001} shows that the \alert{Lagrange polynomial} for~$y$ satisfies
+        \begin{equation*}
+            L_y(x) = \frac{\det B_y(x)}{\det B}.
+        \end{equation*}
+        % An analysis in \cite{Powell_2001} shows that replacing a point~$y \in \xpt[k + 1]$ by another one that provides a large value of~$\abs{L_y(\cdot)}$ is
+    \end{block}
+
+    \medskip
+
+    A point~$y \in \xpt[k + 1]$ is \alert{replaced} with an approximate solution to
+    \begin{align*}
+        \max_{x \in \R^n}   & \quad \abs{L_y(x)}\\
+        \text{s.t.}         & \quad \norm{x - x^{k + 1}} \le \bar{\Delta}^k,
+    \end{align*}
+    for some~$\bar{\Delta}^k \ge 0$.
+\end{frame}
+
+\begin{frame}
+    \frametitle{NEWUOA, BOBYQA, LINCOA~\parencite{Powell_2006,Powell_2009,Powell_2015}}
+
+	They build~$\objm[k]$ by \alert{underdetermined quadratic interpolation} on~$\xpt[k]$ with
+    \begin{equation*}
+        n + 2 \le \card(\xpt[k]) \le \frac{1}{2} (n + 1) (n + 2).
+    \end{equation*}
+    They employ the \alert{derivative-free symmetric Broyden update}
+    \begin{align*}
+        \min        & \quad \frac{1}{2} \norm{\nabla^2 Q - \nabla^2 \objm[k - 1]}_{\mathsf{F}}^2\\
+        \text{s.t.} & \quad Q(y) = f(y), ~ y \in \xpt[k].
+    \end{align*}
+
+    \begin{block}{}
+        The \alert{trust-region subproblems} are approximately solved using the TCG algorithm of~\cite{Steihaug_1983} and~\cite{Toint_1981}.
+    \end{block}
+
+    \medskip
+
+    The trial point \alert{replaces} a point in~$\xpt[k]$ to obtain~$\xpt[k + 1]$.
+\end{frame}
+
+\begin{frame}
+    \frametitle{NEWUOA, BOBYQA, LINCOA~\parencite{Powell_2006,Powell_2009,Powell_2015}}
+
+    \begin{block}{What if~$\xpt[k + 1]$ is (almost) not poised?}
+        To update the \alert{inverse} of the coefficient matrix of the interpolation system from~$\xpt[k + 1]$ to~$\xpt[k]$, they use the \alert{Woodbury formula}.
+        \cite{Powell_2004c} shows that the only denominator of this update is bounded from below by
+        \begin{equation*}
+            L_y(x)^2, \quad \text{with~$\xpt[k + 1] = (\xpt[k] \setminus \set{y}) \cup \set{x}$},
+        \end{equation*}
+        where~$L_y$ is the \alert{Lagrange polynomial} for~$y$ in the least Frobenius norm sense.
+    \end{block}
+
+    \smallskip
+
+    A point~$y \in \xpt[k + 1]$ is \alert{replaced} with an approximate solution to
+    \begin{align*}
+        \max_{x \in \Omega} & \quad \abs{L_y(x)}\\
+        \text{s.t.}         & \quad \norm{x - x^{k + 1}} \le \bar{\Delta}^k,
+    \end{align*}
+    for some~$\bar{\Delta}^k \ge 0$.
+\end{frame}
+
+\section{Core features of the PDFO package}
+
+\begin{frame}[fragile]
+    \frametitle{Solver selection}
+
+    \begin{block}{How to call PDFO (e.g., in MATLAB)?}
+        \begin{lstmatlab}
+            x = pdfo(@fun, x0, A, b, Aeq, beq, lb, ub, @nonlcon);
+        
+            function fx = fun(x)
+            ...
+            end
+        
+            function [c, ceq] = nonlcon(x)
+            ...
+            end
+        \end{lstmatlab}
+    \end{block}
+
+    \medskip
+
+    PDFO \alert{automatically selects} the \enquote{best} solver to solve the problem.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Problem preprocessing}
+
+	\begin{enumerate}
+        \item \alert{Projection of~$x^0$}.
+        For bound- and linearly constrained problems, PDFO projects~$x^0$ onto~$\Omega$ (BOBYQA and LINCOA would otherwise fail).
+        \item \alert{Removal of linear equality constraints}.
+        Assume that~$A$ has full column rank and that~$A x^0 = b$.
+        Let~$A^{\T} = \hat{Q} R$ be the \alert{QR factorization} of~$A^{\T}$.
+        Then
+        \begin{equation*}
+            A x = b \Longleftrightarrow \hat{Q}^{\T} (x - x^0) = 0, \quad \text{for~$x \in \R^n$}.
+        \end{equation*}
+        Let~$\check{Q}$ be such that~$\begin{bmatrix} \hat{Q} & \check{Q} \end{bmatrix}$ is \alert{orthogonal}.
+        Then
+        \begin{equation*}
+            \set{x \in \R^n : A x = b} = \set{x^0} + \check{Q} \R^{n - \rank(A)}
+        \end{equation*}
+    \end{enumerate}
+
+    \medskip
+
+    \begin{block}{}
+        This is done by PDFO, the user do \alert{not need} to do it.
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Other features of the PDFO package}
+
+    \begin{enumerate}
+        \item \alert{Comprehensiveness}.
+        PDFO is the only package providing all five solvers.
+        \item \alert{Code patching}.
+        We patched infinite cycling, segmentation faults, \dots
+        \item \alert{Fault tolerance}.
+        PDFO handles faults in the problem's functions.
+        \item \alert{Additional options}. We implemented additional features, e.g.,
+        \begin{enumerate}
+            \item scaling the problem according to the bound constraints,
+            \item stopping the computations if a target value is reached.
+        \end{enumerate}
+    \end{enumerate}
+
+    \medskip
+
+    \begin{center}
+        \includegraphics[width=1in]{images/qr-codes/pdfo-usage.png}
+
+        \footnotesize\url{https://www.pdfo.net/docs.html\#usage}
+    \end{center}
+\end{frame}
+
+\section{Numerical experiments}
+
+\begin{frame}
+    \frametitle{Comparisons on unconstrained problems}
+
+    \begin{columns}
+        \begin{column}{0.4\textwidth}
+            We compare the solvers on
+            \begin{enumerate}
+                \item \alert{unconstrained} problems,
+                \item of the \alert{CUTEst} data,
+                \item of dimension \alert{at most \only<1>{10}\only<2->{50}},
+                \item with a tolerance~$\tau = 10^{-\only<1,2>{4}\only<3>{1}\only<4>{2}}$\only<1,2>{.}\only<3->{,}
+                \uncover<3->{
+                    \item replacing~$\obj$ with
+                    \begin{equation*}
+                        \tilde{\obj}(x) = [1 + \epsilon(x)] \obj(x),
+                    \end{equation*}
+                    where~$\epsilon(x) \sim N(0, 10^{-4})$.
+                }
+            \end{enumerate}
+        \end{column}
+        \begin{column}{0.6\textwidth}
+            \only<1>{
+                \begin{center}
+                    \drawperformanceprofiles{{"NEWUOA","BOBYQA","LINCOA","COBYLA","UOBYQA"}}{plain-1-10-perf-newuoa-bobyqa-lincoa-cobyla-uobyqa-u.csv}{4}
+                \end{center}
+            }
+            \only<2>{
+                \begin{center}
+                    \drawperformanceprofiles{{"NEWUOA","BOBYQA","LINCOA","COBYLA"}}{plain-1-50-perf-newuoa-bobyqa-lincoa-cobyla-u.csv}{4}
+                \end{center}
+            }
+            \only<3>{
+                \begin{center}
+                    \drawperformanceprofiles{{"NEWUOA","BOBYQA","LINCOA","COBYLA"}}{noisy-1-50-2-perf-newuoa-bobyqa-lincoa-cobyla-u.csv}{1}
+                \end{center}
+            }
+            \only<4>{
+                \begin{center}
+                    \drawperformanceprofiles{{"NEWUOA","BOBYQA","LINCOA","COBYLA"}}{noisy-1-50-2-perf-newuoa-bobyqa-lincoa-cobyla-u.csv}{2}
+                \end{center}
+            }
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\section{Conclusion}
+
+\begin{frame}
+    \frametitle{Conclusion}
+    
+    In this talk, we presented
+    \begin{enumerate}
+        \item \alert{Powell's DFO methods},
+        \item the \alert{PDFO} package for MATLAB and Python, and
+        \item some \alert{numerical experiments} using PDFO.
+    \end{enumerate}
+
+    \bigskip
+
+    The PDFO package
+    \begin{enumerate}
+        \item has been \alert{downloaded} about \num{35000} times (as of October 2022),
+        \item received \alert{favorable feedback} from IRT Saint-Exup{\'{e}}ry in France.
+    \end{enumerate}
+
+    \bigskip
+
+    In the next talk, we will discuss the \alert{SQP method} in optimization.
+\end{frame}
+
+\appendix
+
+\begin{frame}[t,allowframebreaks]
+    \frametitle{References}
+
+	\printbibliography
+\end{frame}
+
+\end{document}
