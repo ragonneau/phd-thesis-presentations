@@ -13,7 +13,7 @@
 %
 % The Current Maintainer of this work is Tom M. Ragonneau.
 \documentclass{polyu-presentation}
-\usepackage[final]{microtype}
+\usepackage{microtype}
 \usepackage{booktabs}
 
 % List of hyphenation exceptions for US English
@@ -155,7 +155,7 @@
     \begin{align*}
         \min_{x \in \R^n}   & \quad \objm[k](x)\\
         \text{s.t.}         & \quad x \in \Omega^k,\\
-                            & \quad \norm{x - x^k} \le \Delta^k,
+                            & \quad \norm{x - x^k} \le \Delta^{\! k},
     \end{align*}
     where~$\objm[k]$ is a \alert{linear or quadratic} interpolation model of~$\obj$ on~$\xpt[k] \subseteq \R^n$ and
     \begin{empheq}[left={\Omega^k = \empheqlbrace}]{alignat*=2}
@@ -176,12 +176,12 @@
     \begin{block}{}
         The \alert{trust-region subproblem} is solved exactly, and if
         \begin{equation*}
-            \set{x \in \R^n : \conm[k]{i}(x) \ge 0} \cap \set{x \in \R^n : \norm{x - x^k} \le \Delta^k} = \emptyset,
+            \set{x \in \R^n : \conm[k]{i}(x) \ge 0} \cap \set{x \in \R^n : \norm{x - x^k} \le \Delta^{\! k}} = \emptyset,
         \end{equation*}
         then the \alert{trial point} solves approximately
         \begin{align*}
             \min_{x \in \R^n}   & \quad \max_{i \in \iub} \, [\conm[k]{i}(x)]_{-}\\
-            \text{s.t.}         & \quad \norm{x - x^k} \le \Delta^k.
+            \text{s.t.}         & \quad \norm{x - x^k} \le \Delta^{\! k}.
         \end{align*}
     \end{block}
 
@@ -257,8 +257,8 @@
         It is based on the \alert{crucial property} that~$x^{\ast}$ is a solution to the trust-region subproblem iff there exists~$\lambda^{\ast} \ge 0$ such that
         \begin{empheq}[left={\empheqlbrace}]{alignat*=1}
             & (\nabla^2 \objm[k] + \lambda^{\ast} I_n) (x^{\ast} - x^k) = -\nabla \objm[k](x^k),\\
-            & \norm{x^{\ast} - x^k} \le \Delta^k,\\
-            & \lambda^{\ast} (\Delta^k - \norm{x^{\ast} - x^k}) = 0,\\
+            & \norm{x^{\ast} - x^k} \le \Delta^{\! k},\\
+            & \lambda^{\ast} (\Delta^{\! k} - \norm{x^{\ast} - x^k}) = 0,\\
             & \nabla^2 \objm[k] \succcurlyeq -\lambda^{\ast} I_n.
         \end{empheq}
     \end{block}
@@ -285,9 +285,9 @@
     A point~$y \in \xpt[k + 1]$ is \alert{replaced} with an approximate solution to
     \begin{align*}
         \max_{x \in \R^n}   & \quad \abs{L_y(x)}\\
-        \text{s.t.}         & \quad \norm{x - x^{k + 1}} \le \bar{\Delta}^k,
+        \text{s.t.}         & \quad \norm{x - x^{k + 1}} \le \bar{\Delta}^{\! k},
     \end{align*}
-    for some~$\bar{\Delta}^k \ge 0$.
+    for some~$\bar{\Delta}^{\! k} \ge 0$.
 \end{frame}
 
 \begin{frame}
@@ -304,7 +304,7 @@
     \end{align*}
 
     \begin{block}{}
-        The \alert{trust-region subproblems} are approximately solved using the TCG algorithm of~\cite{Steihaug_1983} and~\cite{Toint_1981}.
+        The \alert{trust-region subproblems} are approximately solved using the \alert{truncated conjugate gradient} algorithm of~\cite{Steihaug_1983} and~\cite{Toint_1981}.
     \end{block}
 
     \medskip
@@ -329,9 +329,9 @@
     A point~$y \in \xpt[k + 1]$ is \alert{replaced} with an approximate solution to
     \begin{align*}
         \max_{x \in \Omega} & \quad \abs{L_y(x)}\\
-        \text{s.t.}         & \quad \norm{x - x^{k + 1}} \le \bar{\Delta}^k,
+        \text{s.t.}         & \quad \norm{x - x^{k + 1}} \le \bar{\Delta}^{\! k},
     \end{align*}
-    for some~$\bar{\Delta}^k \ge 0$.
+    for some~$\bar{\Delta}^{\! k} \ge 0$.
 \end{frame}
 
 \section{Core features of the PDFO package}
@@ -474,7 +474,7 @@
 
     The PDFO package
     \begin{enumerate}
-        \item has been \alert{downloaded} about \num{35000} times (as of October 2022),
+        \item has been \alert{downloaded} more than \num{36000} times (as of October 2022),
         \item received \alert{favorable feedback} from IRT Saint-Exup{\'{e}}ry in France.
     \end{enumerate}
 
@@ -484,6 +484,150 @@
 \end{frame}
 
 \appendix
+
+\begin{frame}
+    \frametitle{Exercises from previous group seminars}
+
+    \begin{block}{Exercise no.\ 1}
+        Is it possible to \alert{reformulate} any \alert{piecewise linear programming} problem as a \alert{linear programming} problem?
+    \end{block}
+
+    \smallskip
+
+    \begin{enumerate}
+        \item If the problem is \alert{convex}, this is \alert{true} because any convex piecewise linear function~$\obj$ can be formulated as
+        \begin{equation*}
+            \obj(x) = \max_{1 \le i \le m} a_i^{\T} x + b_i.
+        \end{equation*}
+        \item If the problem is \alert{nonconvex}, this is \alert{not true}.
+        Consider
+        \begin{equation*}
+            \min_{x \in [-1, 1]} -\abs{x},
+        \end{equation*}
+        whose solutions are~$\pm 1$.
+        If this problem could be reformulated as a linear programming problem, any~$x \in [-1, 1]$ would be a solution.
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Exercises from previous group seminars}
+
+    \begin{block}{Exercise no.\ 2}
+        Reformulate
+        \begin{align*}
+            \min_{x, g, H}  & \quad \norm{H}\\
+            \text{s.t.}     & \quad c + g^{\T} x + \frac{1}{2} x^{\T} H x = \obj(y), ~ y \in \xpt
+        \end{align*}
+        as \alert{linear programming} problems when~$\norm{\cdot}$ is the~$\ell_1$- or the~$\ell_{\infty}$-induced norm.
+    \end{block}
+
+    \bigskip
+
+    \begin{enumerate}
+        \item Since~$H$ is \alert{symmetric},~$\norm{H}_1 = \norm{H}_{\infty}$.
+        The reformulations are \alert{identical}.
+        \item We use the fact that
+        \begin{equation*}
+            \norm{H} = \max_{1 \le j \le n} \sum_{i = 1}^n \abs{H_{i, j}} = \max_{1 \le j \le n} \sum_{i = 1}^n \max \set{H_{i, j}, -H_{i, j}}.
+        \end{equation*}
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Exercises from previous group seminars}
+
+    Therefore, a \alert{reformulated problem} is
+        \begin{align*}
+            \min_{x, g, H, U, t}    & \quad t\\
+            \text{s.t.}             & \quad \sum_{i = 1}^n U_{i, j} \le t, ~ j \in \set{1, 2, \dots, n},\\
+                                    & \quad H \le U,\\
+                                    & \quad -H \le U,\\
+                                    & \quad c + g^{\T} x + \frac{1}{2} x^{\T} H x = \obj(y), ~ y \in \xpt.
+        \end{align*}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Exercises from previous group seminars}
+
+    \begin{block}{Exercise no.\ 3}
+        Is the \alert{error estimation} in~\cite{Conn_Scheinberg_Vicente_2009b} on polynomial interpolation correct?
+        Is it \alert{consistent} with the theory in~\cite{Ciarlet_Raviart_1972}?
+    \end{block}
+
+    Let~$\xpt \subseteq \R^n$ be a \alert{poised} interpolation set in~$\R_k[X^n]$ and let~$u$ be a (regular enough) function.
+    For all~$m$ with~$0 \le m \le k$, the interpolant~$\hat{u}$ of~$u$ satisfies
+    \begin{equation*}
+        \sup_{x \in \conv(\xpt)} \norm{\nabla^m \hat{u}(x) - \nabla^m u(x)} \le \frac{\nu \diam(\xpt)^{m + k + 1}}{\rho^m (k + 1)!} \sum_{y \in \xpt} \sup_{x \in \conv(\xpt)} \norm{\nabla^m L_y(x)},
+    \end{equation*}
+    where~$L_y$ is the \alert{Lagrange polynomial} for~$y \in \xpt$,~$\rho$ is the diameter of the largest~$\ell_2$-inscribed sphere of~$\conv(\xpt)$, and
+    \begin{equation*}
+        \nu = \sup_{x \in \conv(\xpt)} \norm{\nabla^{k + 1} u(x)},
+    \end{equation*}
+    with~$\norm{\cdot}$ being the~$\ell_2$-induced norm.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Exercises from previous group seminars}
+
+    However, the bound in~\cite{Conn_Scheinberg_Vicente_2009b} leads to
+    \begin{equation*}
+        \sup_{x \in \conv(\xpt)} \norm{\nabla^m \hat{u}(x) - \nabla^m u(x)} \le \frac{\nu \diam(\xpt)^{k + 1}}{(k + 1)!} \sum_{y \in \xpt} \sup_{x \in \conv(\xpt)} \norm{\nabla^m L_y(x)}.
+    \end{equation*}
+    This \alert{cannot be implied} by~\cite{Ciarlet_Raviart_1972}, because~\alert{$\diam(\xpt) > \rho$}.
+
+    \bigskip
+
+    \begin{columns}
+        \begin{column}{0.4\textwidth}
+            \begin{center}
+                \begin{tikzpicture}
+                    % Coordinates of the vertices of the triangle
+                    \coordinate[label=below left:$y^1$] (a) at (0,0);
+                    \coordinate[label=above right:$y^2$] (b) at (1.5,2);
+                    \coordinate[label=below right:$y^3$] (c) at (2,0.5);
+        
+                    % Triangle
+                    \draw[thick] (a) -- (b) -- (c) -- cycle;
+        
+                    % Circumscribed circle
+                    \draw[thick,OliveGreen] let
+                        \p1=(a),
+                        \p2=(b),
+                        \p3=(c),
+                        \n1={veclen(\x1-\x2,\y1-\y2)},
+                        \n2={veclen(\x2-\x3,\y2-\y3)},
+                        \n3={veclen(\x3-\x1,\y3-\y1)},
+                        \n4={acos((\n1^2+\n3^2-\n2^2)/(2*\n1*\n3))},
+                        \n5={acos((\n1^2+\n2^2-\n3^2)/(2*\n1*\n2))},
+                        \n6={acos((\n2^2+\n3^2-\n1^2)/(2*\n2*\n3))},
+                        \n7={0.5*(\n1+\n2+\n3)},
+                    in
+                        ({(\x1*sin(2*\n4)+\x2*sin(2*\n5)+\x3*sin(2*\n6))/(sin(2*\n4)+sin(2*\n5)+sin(2*\n6))},{(\y1*sin(2*\n4)+\y2*sin(2*\n5)+\y3*sin(2*\n6))/(sin(2*\n4)+sin(2*\n5)+sin(2*\n6))}) circle[radius={0.25*(1/sqrt(\n7))*(1/sqrt((\n7-\n1)/(\n1^2)))*(1/sqrt((\n7-\n2)/(\n2^2)))*(1/sqrt((\n7-\n3)/(\n3^2)))}];
+        
+                    % Inscribed circle
+                    \draw[thick,Maroon] let
+                        \p1=(a),
+                        \p2=(b),
+                        \p3=(c),
+                        \n1={veclen(\x1-\x2,\y1-\y2)},
+                        \n2={veclen(\x2-\x3,\y2-\y3)},
+                        \n3={veclen(\x3-\x1,\y3-\y1)},
+                        \n4={0.5*(\n1+\n2+\n3)},
+                    in
+                        (({(\x1*\n2+\x2*\n3+\x3*\n1)/(\n1+\n2+\n3)},{(\y1*\n2+\y2*\n3+\y3*\n1)/(\n1+\n2+\n3)}) circle[radius=(1/sqrt(\n4))*sqrt(\n4-\n1)*sqrt(\n4-\n2)*sqrt(\n4-\n3)];
+                    
+                    % Points
+                    \foreach \x in {(a),(b),(c)}{
+                        \fill \x circle[radius=2pt];
+                    }
+                \end{tikzpicture}
+            \end{center}
+        \end{column}
+        \begin{column}{0.6\textwidth}
+            With~$\xpt = \set{y^1, y^2, y^3} \subseteq \R^2$, the diameter of the \textcolor{Maroon}{inscribed circle} is smaller than the diameter of the \textcolor{OliveGreen}{circumscribed circle}, itself smaller than~$\diam(\xpt)$.
+        \end{column}
+    \end{columns}
+\end{frame}
 
 \begin{frame}[t,allowframebreaks]
     \frametitle{References}

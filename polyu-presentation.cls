@@ -13,7 +13,7 @@
 %
 % The Current Maintainer of this work is Tom M. Ragonneau.
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{polyu-presentation}[2022/09/30 PolyU presentation document class]
+\ProvidesClass{polyu-presentation}[2022/10/12 PolyU presentation document class]
 
 % Load beamer class as basis
 \PassOptionsToPackage{usenames,dvipsnames}{xcolor}
@@ -84,6 +84,7 @@
 \RequirePackage{empheq}
 \DeclareMathOperator*{\argmin}{arg\,min}
 \DeclareMathOperator{\card}{card}
+\DeclareMathOperator{\conv}{conv}
 \DeclareMathOperator{\diam}{diam}
 \DeclareMathOperator{\rank}{rank}
 \newcommand{\eqdef}{\mathrel{\stackrel{\mathsf{def}}{=}}}
@@ -103,7 +104,7 @@
 \RequirePackage{pgfplots}
 \RequirePackage{pgfplotstable}
 \RequirePackage{makecell}
-\usetikzlibrary{decorations.pathreplacing,overlay-beamer-styles,patterns,shapes}
+\usetikzlibrary{calc,decorations.pathreplacing,overlay-beamer-styles,patterns,shapes}
 \pgfplotsset{
     compat=1.18,
 }
