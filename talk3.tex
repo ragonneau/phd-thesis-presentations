@@ -64,7 +64,7 @@
     Department of Applied Mathematics\\
     The Hong Kong Polytechnic University
 }
-\date{October 10, 2022}
+\date{November 14, 2022 (Revised on November 14, 2022)}
 \titlegraphic{}
 
 \begin{document}
@@ -88,7 +88,7 @@
     \begin{equation*}
         \min_{x \in \Omega \subseteq \R^n} \obj(x),
     \end{equation*}
-    where \alert{derivatives} of~$\obj$ (and the functions underlying~$\Omega$) are \alert{unknown}.
+    where \alert{derivatives} of~$\obj$ (and possibly the constraint functions) are \alert{unknown}.
 
     \smallskip
 
@@ -98,7 +98,7 @@
             Solver  & Feasible set~$\Omega$                                 & References\\
             \midrule
             UOBYQA  & $\R^n$                                                & \cite{Powell_2002}\\
-            NEWUOA  & $\R^n$                                                & \cite{Powell_2006,Powell_2008}\\
+            NEWUOA  & $\R^n$                                                & \cite{Powell_2006}\\
             BOBYQA  & $\set{x \in \R^n : \xl \le x \le \xu}$                & \cite{Powell_2009}\\
             LINCOA  & $\set{x \in \R^n : \aub x \le \bub}$                  & \cite{Powell_2015}\\
             COBYLA  & $\set{x \in \R^n : \con{i}(x) \ge 0, ~ i \in \iub}$   & \cite{Powell_1994}\\
@@ -121,8 +121,8 @@
     \medskip
 
     \begin{enumerate}
-        \item \alert{MATLAB} signature consistent with \texttt{fmincon}.
-        \item \alert{Python} signature consistent with \texttt{scipy.optimize.minimize}.
+        \item \alert{MATLAB} signature is consistent with \texttt{fmincon}.
+        \item \alert{Python} signature is consistent with \texttt{scipy.optimize.minimize}.
         \item \alert{Open-source} and distributed under the LGPLv3+ license.
     \end{enumerate}
 
@@ -154,13 +154,13 @@
 	They are all \alert{trust-region} methods and solve iteratively
     \begin{align*}
         \min_{x \in \R^n}   & \quad \objm[k](x)\\
-        \text{s.t.}         & \quad x \in \Omega^k,\\
+        \text{s.t.}         & \quad x \in \widehat{\Omega}^k,\\
                             & \quad \norm{x - x^k} \le \Delta^{\! k},
     \end{align*}
     where~$\objm[k]$ is a \alert{linear or quadratic} interpolation model of~$\obj$ on~$\xpt[k] \subseteq \R^n$ and
-    \begin{empheq}[left={\Omega^k = \empheqlbrace}]{alignat*=2}
-        & \set{x \in \R^n : \conm[k]{i}(x) \ge 0}   && \quad \text{for COBYLA,}\\
-        & \Omega                                    && \quad \text{for the others,}
+    \begin{empheq}[left={\widehat{\Omega}^k = \empheqlbrace}]{alignat*=2}
+        & \set{x \in \R^n : \conm[k]{i}(x) \ge 0, ~ i \in \iub} && \quad \text{for COBYLA,}\\
+        & \Omega                                                && \quad \text{for the others,}
     \end{empheq}
     with~$\conm[k]{i}$ being a \alert{linear} interpolation model of~$\con{i}$ on~$\xpt[k]$.
 \end{frame}
@@ -174,11 +174,12 @@
     \end{equation*}
 
     \begin{block}{}
-        The \alert{trust-region subproblem} is solved exactly, and if
+        If the \alert{trust-region subproblem} if feasible, i.e., if
         \begin{equation*}
-            \set{x \in \R^n : \conm[k]{i}(x) \ge 0} \cap \set{x \in \R^n : \norm{x - x^k} \le \Delta^{\! k}} = \emptyset,
+            \set{x \in \R^n : \conm[k]{i}(x) \ge 0} \cap \set{x \in \R^n : \norm{x - x^k} \le \Delta^{\! k}} \neq \emptyset,
         \end{equation*}
-        then the \alert{trial point} solves approximately
+        then it is solved \alert{exactly}.
+        Otherwise, the method solves \alert{approximately}
         \begin{align*}
             \min_{x \in \R^n}   & \quad \max_{i \in \iub} \, [\conm[k]{i}(x)]_{-}\\
             \text{s.t.}         & \quad \norm{x - x^k} \le \Delta^{\! k}.
@@ -193,7 +194,7 @@
 \begin{frame}
     \frametitle{COBYLA~\parencite{Powell_1994}}
 
-    \begin{block}{What if~$\xpt[k + 1]$ is (almost) not poised?}
+    \begin{block}{What if~$\xpt[k + 1]$ is not sufficiently poised?}
         $\xpt[k + 1]$ is poised iff the \alert{volume} of the simplex engendered by~$\xpt[k + 1]$ is \alert{nonzero}.
     \end{block}
 
@@ -209,24 +210,24 @@
                         axis equal image,
                         axis lines=none,
                     ]
-                        \addplot3[only marks] coordinates{(0, 0, 0) (0, 0, -1.5) (0, 2, -1.5)};
+                        \addplot3[only marks] coordinates{(0, 0, 0) (0, 0, -1.5) (0, 2, -1.2)};
                         \addplot3[only marks,visible on=<1>] coordinates{(-1, 1, -1)};
                         \addplot3[only marks,mark options={fill=Maroon},visible on=<2->] coordinates{(-1, 1, -1)};
                         \addplot3[only marks,mark options={fill=OliveGreen},visible on=<4>] coordinates{(-2, 1, -1)};
         
                         \addplot3[no marks] coordinates{(0, 0, 0) (0, 0, -1.5)};
-                        \addplot3[no marks] coordinates{(0, 0, 0) (0, 2, -1.5)};
-                        \addplot3[no marks] coordinates{(0, 0, -1.5) (0, 2, -1.5)};
+                        \addplot3[no marks] coordinates{(0, 0, 0) (0, 2, -1.2)};
+                        \addplot3[no marks] coordinates{(0, 0, -1.5) (0, 2, -1.2)};
                         \addplot3[no marks,visible on=<1-3>] coordinates{(0, 0, 0) (-1, 1, -1)};
                         \addplot3[no marks,visible on=<1-3>] coordinates{(-1, 1, -1) (0, 0, -1.5)};
-                        \addplot3[no marks,densely dotted,visible on=<1-3>] coordinates{(-1, 1, -1) (0, 2, -1.5)};
+                        \addplot3[no marks,densely dotted,visible on=<1-3>] coordinates{(-1, 1, -1) (0, 2, -1.2)};
                         \addplot3[no marks,RoyalPurple,visible on=<3>] coordinates{(-3, 1, -1) (-1, 1, -1)};
                         \addplot3[no marks,densely dotted,RoyalPurple,visible on=<3>] coordinates{(-1, 1, -1) (0, 1, -1)};
                         \addplot3[no marks,RoyalPurple,visible on=<3->] coordinates{(0, 1, -1) (2, 1, -1)};
                         \addplot3[no marks,visible on=<4>] coordinates{(0, 0, 0) (-2, 1, -1)};
                         \addplot3[no marks,visible on=<4>] coordinates{(0, 0, 0) (-2, 1, -1)};
                         \addplot3[no marks,visible on=<4>] coordinates{(-2, 1, -1) (0, 0, -1.5)};
-                        \addplot3[no marks,densely dotted,visible on=<4>] coordinates{(-2, 1, -1) (0, 2, -1.5)};
+                        \addplot3[no marks,densely dotted,visible on=<4>] coordinates{(-2, 1, -1) (0, 2, -1.2)};
                         \addplot3[no marks,RoyalPurple,visible on=<4>] coordinates{(-3, 1, -1) (-2, 1, -1)};
                         \addplot3[no marks,densely dotted,RoyalPurple,visible on=<4>] coordinates{(-2, 1, -1) (0, 1, -1)};
                     \end{axis}  
@@ -271,8 +272,8 @@
 \begin{frame}
     \frametitle{UOBYQA~\parencite{Powell_2002}}
 
-    \begin{block}{What if~$\xpt[k + 1]$ is (almost) not poised?}
-        Let B be the coefficient matrix of the interpolation system on~$\xpt[k + 1]$, and let~$B_y(x)$ be be that on~$(\xpt[k + 1] \setminus \set{y}) \cup \set{x}$ with~$y \in \xpt[k + 1]$.
+    \begin{block}{What if~$\xpt[k + 1]$ is not sufficiently poised?}
+        Let~$B$ be the coefficient matrix of the interpolation system corresponding to~$\xpt[k + 1]$, and~$B_y(x)$ be the one for~$(\xpt[k + 1] \setminus \set{y}) \cup \set{x}$ with~$y \in \xpt[k + 1]$.
         \cite{Powell_2001} shows that the \alert{Lagrange polynomial} for~$y$ satisfies
         \begin{equation*}
             L_y(x) = \frac{\det B_y(x)}{\det B}.
@@ -304,7 +305,7 @@
     \end{align*}
 
     \begin{block}{}
-        The \alert{trust-region subproblems} are approximately solved using the \alert{truncated conjugate gradient} algorithm of~\cite{Steihaug_1983} and~\cite{Toint_1981}.
+        The \alert{trust-region subproblems} are approximately solved using the \alert{Steihaug-Toint TCG} algorithm, or active-set variations of it.
     \end{block}
 
     \medskip
@@ -315,9 +316,9 @@
 \begin{frame}
     \frametitle{NEWUOA, BOBYQA, LINCOA~\parencite{Powell_2006,Powell_2009,Powell_2015}}
 
-    \begin{block}{What if~$\xpt[k + 1]$ is (almost) not poised?}
-        To update the \alert{inverse} of the coefficient matrix of the interpolation system from~$\xpt[k + 1]$ to~$\xpt[k]$, they use the \alert{Woodbury formula}.
-        \cite{Powell_2004c} shows that the only denominator of this update is bounded from below by
+    \begin{block}{What if~$\xpt[k + 1]$ is not sufficiently poised?}
+        To update the \alert{inverse} of the coefficient matrix of the interpolation system from~$\xpt[k + 1]$ to~$\xpt[k]$, they use the \alert{Sherman-Morrison-Woodbury formula}.
+        \cite{Powell_2004c} shows that the denominator in this update is bounded from below by
         \begin{equation*}
             L_y(x)^2, \quad \text{with~$\xpt[k + 1] = (\xpt[k] \setminus \set{y}) \cup \set{x}$},
         \end{equation*}
@@ -363,7 +364,7 @@
 
 	\begin{enumerate}
         \item \alert{Projection of~$x^0$}.
-        For bound- and linearly constrained problems, PDFO projects~$x^0$ onto~$\Omega$ (BOBYQA and LINCOA would otherwise fail).
+        For bound- and linearly constrained problems, PDFO projects~$x^0$ onto~$\Omega$ (otherwise, BOBYQA and LINCOA would fail).
         \item \alert{Removal of linear equality constraints}.
         Assume that~$A$ has full column rank and that~$A x^0 = b$.
         Let~$A^{\T} = \hat{Q} R$ be the \alert{QR factorization} of~$A^{\T}$.
@@ -418,18 +419,18 @@
 
     \begin{columns}
         \begin{column}{0.4\textwidth}
-            We compare the solvers on
+            We compare the solvers
             \begin{enumerate}
-                \item \alert{unconstrained} problems,
-                \item of the \alert{CUTEst} data,
+                \item on \alert{unconstrained} problems,
+                \item of the \alert{CUTEst} set,
                 \item of dimension \alert{at most \only<1>{10}\only<2->{50}},
-                \item with a tolerance~$\tau = 10^{-\only<1,2>{4}\only<3>{1}\only<4>{2}}$\only<1,2>{.}\only<3->{,}
+                \item with a \alert{tolerance}~$\tau = 10^{-\only<1,2>{4}\only<3>{1}\only<4>{2}}$ for the convergence test\only<1,2>{.}\only<3->{,}
                 \uncover<3->{
                     \item replacing~$\obj$ with
                     \begin{equation*}
                         \tilde{\obj}(x) = [1 + \epsilon(x)] \obj(x),
                     \end{equation*}
-                    where~$\epsilon(x) \sim N(0, 10^{-4})$.
+                    where~$\epsilon(x) \sim N(0, \sigma^2)$ with~$\sigma = 10^{-2}$.
                 }
             \end{enumerate}
         \end{column}
@@ -474,7 +475,7 @@
 
     The PDFO package
     \begin{enumerate}
-        \item has been \alert{downloaded} almost \num{40000} times (October 2022),
+        \item has been \alert{downloaded} more than \num{40000} times (as of November 2022),
         \item received \alert{favorable feedback} from IRT Saint-Exup{\'{e}}ry in France.
     \end{enumerate}
 
@@ -485,149 +486,149 @@
 
 \appendix
 
-\begin{frame}
-    \frametitle{Exercises from previous group seminars}
+% \begin{frame}
+%     \frametitle{Exercises from previous group seminars}
 
-    \begin{block}{Exercise no.\ 1}
-        Is it possible to \alert{reformulate} any \alert{piecewise linear programming} problem as a \alert{linear programming} problem?
-    \end{block}
+%     \begin{block}{Exercise no.\ 1}
+%         Is it possible to \alert{reformulate} any \alert{piecewise linear programming} problem as a \alert{linear programming} problem?
+%     \end{block}
 
-    \smallskip
+%     \smallskip
 
-    \begin{enumerate}
-        \item If the problem is \alert{convex}, this is \alert{true} because any convex piecewise linear function~$\obj$ can be formulated as
-        \begin{equation*}
-            \obj(x) = \max_{1 \le i \le m} a_i^{\T} x + b_i.
-        \end{equation*}
-        \item If the problem is \alert{nonconvex}, this is \alert{not true}.
-        Consider
-        \begin{equation*}
-            \min_{x \in [-1, 1]} -\abs{x},
-        \end{equation*}
-        whose solutions are~$\pm 1$.
-        If this problem could be reformulated as a linear programming problem, any~$x \in [-1, 1]$ would be a solution.
-    \end{enumerate}
-\end{frame}
+%     \begin{enumerate}
+%         \item If the problem is \alert{convex}, this is \alert{true} because any convex piecewise linear function~$\obj$ can be formulated as
+%         \begin{equation*}
+%             \obj(x) = \max_{1 \le i \le m} a_i^{\T} x + b_i.
+%         \end{equation*}
+%         \item If the problem is \alert{nonconvex}, this is \alert{not true}.
+%         Consider
+%         \begin{equation*}
+%             \min_{x \in [-1, 1]} -\abs{x},
+%         \end{equation*}
+%         whose solutions are~$\pm 1$.
+%         If this problem could be reformulated as a linear programming problem, any~$x \in [-1, 1]$ would be a solution.
+%     \end{enumerate}
+% \end{frame}
 
-\begin{frame}
-    \frametitle{Exercises from previous group seminars}
+% \begin{frame}
+%     \frametitle{Exercises from previous group seminars}
 
-    \begin{block}{Exercise no.\ 2}
-        Reformulate
-        \begin{align*}
-            \min_{x, g, H}  & \quad \norm{H}\\
-            \text{s.t.}     & \quad c + g^{\T} x + \frac{1}{2} x^{\T} H x = \obj(y), ~ y \in \xpt
-        \end{align*}
-        as \alert{linear programming} problems when~$\norm{\cdot}$ is the~$\ell_1$- or the~$\ell_{\infty}$-induced norm.
-    \end{block}
+%     \begin{block}{Exercise no.\ 2}
+%         Reformulate
+%         \begin{align*}
+%             \min_{x, g, H}  & \quad \norm{H}\\
+%             \text{s.t.}     & \quad c + g^{\T} x + \frac{1}{2} x^{\T} H x = \obj(y), ~ y \in \xpt
+%         \end{align*}
+%         as \alert{linear programming} problems when~$\norm{\cdot}$ is the~$\ell_1$- or the~$\ell_{\infty}$-induced norm.
+%     \end{block}
 
-    \bigskip
+%     \bigskip
 
-    \begin{enumerate}
-        \item Since~$H$ is \alert{symmetric},~$\norm{H}_1 = \norm{H}_{\infty}$.
-        The reformulations are \alert{identical}.
-        \item We use the fact that
-        \begin{equation*}
-            \norm{H} = \max_{1 \le j \le n} \sum_{i = 1}^n \abs{H_{i, j}} = \max_{1 \le j \le n} \sum_{i = 1}^n \max \set{H_{i, j}, -H_{i, j}}.
-        \end{equation*}
-    \end{enumerate}
-\end{frame}
+%     \begin{enumerate}
+%         \item Since~$H$ is \alert{symmetric},~$\norm{H}_1 = \norm{H}_{\infty}$.
+%         The reformulations are \alert{identical}.
+%         \item We use the fact that
+%         \begin{equation*}
+%             \norm{H} = \max_{1 \le j \le n} \sum_{i = 1}^n \abs{H_{i, j}} = \max_{1 \le j \le n} \sum_{i = 1}^n \max \set{H_{i, j}, -H_{i, j}}.
+%         \end{equation*}
+%     \end{enumerate}
+% \end{frame}
 
-\begin{frame}
-    \frametitle{Exercises from previous group seminars}
+% \begin{frame}
+%     \frametitle{Exercises from previous group seminars}
 
-    Therefore, a \alert{reformulated problem} is
-        \begin{align*}
-            \min_{x, g, H, U, t}    & \quad t\\
-            \text{s.t.}             & \quad \sum_{i = 1}^n U_{i, j} \le t, ~ j \in \set{1, 2, \dots, n},\\
-                                    & \quad H \le U,\\
-                                    & \quad -H \le U,\\
-                                    & \quad c + g^{\T} x + \frac{1}{2} x^{\T} H x = \obj(y), ~ y \in \xpt.
-        \end{align*}
-\end{frame}
+%     Therefore, a \alert{reformulated problem} is
+%         \begin{align*}
+%             \min_{x, g, H, U, t}    & \quad t\\
+%             \text{s.t.}             & \quad \sum_{i = 1}^n U_{i, j} \le t, ~ j \in \set{1, 2, \dots, n},\\
+%                                     & \quad H \le U,\\
+%                                     & \quad -H \le U,\\
+%                                     & \quad c + g^{\T} x + \frac{1}{2} x^{\T} H x = \obj(y), ~ y \in \xpt.
+%         \end{align*}
+% \end{frame}
 
-\begin{frame}
-    \frametitle{Exercises from previous group seminars}
+% \begin{frame}
+%     \frametitle{Exercises from previous group seminars}
 
-    \begin{block}{Exercise no.\ 3}
-        Is the \alert{error estimation} in~\cite{Conn_Scheinberg_Vicente_2009b} on polynomial interpolation correct?
-        Is it \alert{consistent} with the theory in~\cite{Ciarlet_Raviart_1972}?
-    \end{block}
+%     \begin{block}{Exercise no.\ 3}
+%         Is the \alert{error estimation} in~\cite{Conn_Scheinberg_Vicente_2009b} on polynomial interpolation correct?
+%         Is it \alert{consistent} with the theory in~\cite{Ciarlet_Raviart_1972}?
+%     \end{block}
 
-    Let~$\xpt \subseteq \R^n$ be a \alert{poised} interpolation set in~$\R_k[X^n]$ and let~$u$ be a (regular enough) function.
-    For all~$m$ with~$0 \le m \le k$, the interpolant~$\hat{u}$ of~$u$ satisfies
-    \begin{equation*}
-        \sup_{x \in \conv(\xpt)} \norm{\nabla^m \hat{u}(x) - \nabla^m u(x)} \le \frac{\nu \diam(\xpt)^{m + k + 1}}{\rho^m (k + 1)!} \sum_{y \in \xpt} \sup_{x \in \conv(\xpt)} \norm{\nabla^m L_y(x)},
-    \end{equation*}
-    where~$L_y$ is the \alert{Lagrange polynomial} for~$y \in \xpt$,~$\rho$ is the diameter of the largest~$\ell_2$-inscribed sphere of~$\conv(\xpt)$, and
-    \begin{equation*}
-        \nu = \sup_{x \in \conv(\xpt)} \norm{\nabla^{k + 1} u(x)},
-    \end{equation*}
-    with~$\norm{\cdot}$ being the~$\ell_2$-induced norm.
-\end{frame}
+%     Let~$\xpt \subseteq \R^n$ be a \alert{poised} interpolation set in~$\R_k[X^n]$ and let~$u$ be a (regular enough) function.
+%     For all~$m$ with~$0 \le m \le k$, the interpolant~$\hat{u}$ of~$u$ satisfies
+%     \begin{equation*}
+%         \sup_{x \in \conv(\xpt)} \norm{\nabla^m \hat{u}(x) - \nabla^m u(x)} \le \frac{\nu \diam(\xpt)^{m + k + 1}}{\rho^m (k + 1)!} \sum_{y \in \xpt} \sup_{x \in \conv(\xpt)} \norm{\nabla^m L_y(x)},
+%     \end{equation*}
+%     where~$L_y$ is the \alert{Lagrange polynomial} for~$y \in \xpt$,~$\rho$ is the diameter of the largest~$\ell_2$-inscribed sphere of~$\conv(\xpt)$, and
+%     \begin{equation*}
+%         \nu = \sup_{x \in \conv(\xpt)} \norm{\nabla^{k + 1} u(x)},
+%     \end{equation*}
+%     with~$\norm{\cdot}$ being the~$\ell_2$-induced norm.
+% \end{frame}
 
-\begin{frame}
-    \frametitle{Exercises from previous group seminars}
+% \begin{frame}
+%     \frametitle{Exercises from previous group seminars}
 
-    However, the bound in~\cite{Conn_Scheinberg_Vicente_2009b} leads to
-    \begin{equation*}
-        \sup_{x \in \conv(\xpt)} \norm{\nabla^m \hat{u}(x) - \nabla^m u(x)} \le \frac{\nu \diam(\xpt)^{k + 1}}{(k + 1)!} \sum_{y \in \xpt} \sup_{x \in \conv(\xpt)} \norm{\nabla^m L_y(x)}.
-    \end{equation*}
-    This \alert{cannot be implied} by~\cite{Ciarlet_Raviart_1972}, because~\alert{$\diam(\xpt) > \rho$}.
+%     However, the bound in~\cite{Conn_Scheinberg_Vicente_2009b} leads to
+%     \begin{equation*}
+%         \sup_{x \in \conv(\xpt)} \norm{\nabla^m \hat{u}(x) - \nabla^m u(x)} \le \frac{\nu \diam(\xpt)^{k + 1}}{(k + 1)!} \sum_{y \in \xpt} \sup_{x \in \conv(\xpt)} \norm{\nabla^m L_y(x)}.
+%     \end{equation*}
+%     This \alert{cannot be implied} by~\cite{Ciarlet_Raviart_1972}, because~\alert{$\diam(\xpt) > \rho$}.
 
-    \bigskip
+%     \bigskip
 
-    \begin{columns}
-        \begin{column}{0.4\textwidth}
-            \begin{center}
-                \begin{tikzpicture}
-                    % Coordinates of the vertices of the triangle
-                    \coordinate[label=below left:$y^1$] (a) at (0,0);
-                    \coordinate[label=above right:$y^2$] (b) at (1.5,2);
-                    \coordinate[label=below right:$y^3$] (c) at (2,0.5);
+%     \begin{columns}
+%         \begin{column}{0.4\textwidth}
+%             \begin{center}
+%                 \begin{tikzpicture}
+%                     % Coordinates of the vertices of the triangle
+%                     \coordinate[label=below left:$y^1$] (a) at (0,0);
+%                     \coordinate[label=above right:$y^2$] (b) at (1.5,2);
+%                     \coordinate[label=below right:$y^3$] (c) at (2,0.5);
         
-                    % Triangle
-                    \draw[thick] (a) -- (b) -- (c) -- cycle;
+%                     % Triangle
+%                     \draw[thick] (a) -- (b) -- (c) -- cycle;
         
-                    % Circumscribed circle
-                    \draw[thick,OliveGreen] let
-                        \p1=(a),
-                        \p2=(b),
-                        \p3=(c),
-                        \n1={veclen(\x1-\x2,\y1-\y2)},
-                        \n2={veclen(\x2-\x3,\y2-\y3)},
-                        \n3={veclen(\x3-\x1,\y3-\y1)},
-                        \n4={acos((\n1^2+\n3^2-\n2^2)/(2*\n1*\n3))},
-                        \n5={acos((\n1^2+\n2^2-\n3^2)/(2*\n1*\n2))},
-                        \n6={acos((\n2^2+\n3^2-\n1^2)/(2*\n2*\n3))},
-                        \n7={0.5*(\n1+\n2+\n3)},
-                    in
-                        ({(\x1*sin(2*\n4)+\x2*sin(2*\n5)+\x3*sin(2*\n6))/(sin(2*\n4)+sin(2*\n5)+sin(2*\n6))},{(\y1*sin(2*\n4)+\y2*sin(2*\n5)+\y3*sin(2*\n6))/(sin(2*\n4)+sin(2*\n5)+sin(2*\n6))}) circle[radius={0.25*(1/sqrt(\n7))*(1/sqrt((\n7-\n1)/(\n1^2)))*(1/sqrt((\n7-\n2)/(\n2^2)))*(1/sqrt((\n7-\n3)/(\n3^2)))}];
+%                     % Circumscribed circle
+%                     \draw[thick,OliveGreen] let
+%                         \p1=(a),
+%                         \p2=(b),
+%                         \p3=(c),
+%                         \n1={veclen(\x1-\x2,\y1-\y2)},
+%                         \n2={veclen(\x2-\x3,\y2-\y3)},
+%                         \n3={veclen(\x3-\x1,\y3-\y1)},
+%                         \n4={acos((\n1^2+\n3^2-\n2^2)/(2*\n1*\n3))},
+%                         \n5={acos((\n1^2+\n2^2-\n3^2)/(2*\n1*\n2))},
+%                         \n6={acos((\n2^2+\n3^2-\n1^2)/(2*\n2*\n3))},
+%                         \n7={0.5*(\n1+\n2+\n3)},
+%                     in
+%                         ({(\x1*sin(2*\n4)+\x2*sin(2*\n5)+\x3*sin(2*\n6))/(sin(2*\n4)+sin(2*\n5)+sin(2*\n6))},{(\y1*sin(2*\n4)+\y2*sin(2*\n5)+\y3*sin(2*\n6))/(sin(2*\n4)+sin(2*\n5)+sin(2*\n6))}) circle[radius={0.25*(1/sqrt(\n7))*(1/sqrt((\n7-\n1)/(\n1^2)))*(1/sqrt((\n7-\n2)/(\n2^2)))*(1/sqrt((\n7-\n3)/(\n3^2)))}];
         
-                    % Inscribed circle
-                    \draw[thick,Maroon] let
-                        \p1=(a),
-                        \p2=(b),
-                        \p3=(c),
-                        \n1={veclen(\x1-\x2,\y1-\y2)},
-                        \n2={veclen(\x2-\x3,\y2-\y3)},
-                        \n3={veclen(\x3-\x1,\y3-\y1)},
-                        \n4={0.5*(\n1+\n2+\n3)},
-                    in
-                        (({(\x1*\n2+\x2*\n3+\x3*\n1)/(\n1+\n2+\n3)},{(\y1*\n2+\y2*\n3+\y3*\n1)/(\n1+\n2+\n3)}) circle[radius=(1/sqrt(\n4))*sqrt(\n4-\n1)*sqrt(\n4-\n2)*sqrt(\n4-\n3)];
+%                     % Inscribed circle
+%                     \draw[thick,Maroon] let
+%                         \p1=(a),
+%                         \p2=(b),
+%                         \p3=(c),
+%                         \n1={veclen(\x1-\x2,\y1-\y2)},
+%                         \n2={veclen(\x2-\x3,\y2-\y3)},
+%                         \n3={veclen(\x3-\x1,\y3-\y1)},
+%                         \n4={0.5*(\n1+\n2+\n3)},
+%                     in
+%                         (({(\x1*\n2+\x2*\n3+\x3*\n1)/(\n1+\n2+\n3)},{(\y1*\n2+\y2*\n3+\y3*\n1)/(\n1+\n2+\n3)}) circle[radius=(1/sqrt(\n4))*sqrt(\n4-\n1)*sqrt(\n4-\n2)*sqrt(\n4-\n3)];
                     
-                    % Points
-                    \foreach \x in {(a),(b),(c)}{
-                        \fill \x circle[radius=2pt];
-                    }
-                \end{tikzpicture}
-            \end{center}
-        \end{column}
-        \begin{column}{0.6\textwidth}
-            With~$\xpt = \set{y^1, y^2, y^3} \subseteq \R^2$, the diameter of the \textcolor{Maroon}{inscribed circle} is smaller than the diameter of the \textcolor{OliveGreen}{circumscribed circle}, itself smaller than~$\diam(\xpt)$.
-        \end{column}
-    \end{columns}
-\end{frame}
+%                     % Points
+%                     \foreach \x in {(a),(b),(c)}{
+%                         \fill \x circle[radius=2pt];
+%                     }
+%                 \end{tikzpicture}
+%             \end{center}
+%         \end{column}
+%         \begin{column}{0.6\textwidth}
+%             With~$\xpt = \set{y^1, y^2, y^3} \subseteq \R^2$, the diameter of the \textcolor{Maroon}{inscribed circle} is smaller than the diameter of the \textcolor{OliveGreen}{circumscribed circle}, itself smaller than~$\diam(\xpt)$.
+%         \end{column}
+%     \end{columns}
+% \end{frame}
 
 \begin{frame}[t,allowframebreaks]
     \frametitle{References}
