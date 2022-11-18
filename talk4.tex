@@ -41,7 +41,7 @@
     Department of Applied Mathematics\\
     The Hong Kong Polytechnic University
 }
-\date{November 21, 2022}
+\date{November 18, 2022}
 \titlegraphic{}
 
 \begin{document}
@@ -98,7 +98,7 @@
             \item It is fairly easy to \alert{implement}.
             \item It generalizes the \alert{Sequential Linear Programming} (SLP) method.
             \item It can only have \alert{local convergence} properties.
-            \item But it does \alert{NOT} work\dots
+            \item But it does \alert{not} work\dots
         \end{enumerate}
     \end{block}
 \end{frame}
@@ -147,7 +147,7 @@
     \medskip
 
     \begin{block}{}
-        \begin{enumerate}
+        \begin{enumerate}[<+(1)->]
             \item It is as easy to \alert{implement} as before.
             \item It is similar to a \alert{Newton-Raphson} step for the \alert{KKT system}.
         \end{enumerate}
@@ -167,7 +167,7 @@
     \end{equation*}
     
     \begin{block}{}
-        Consider a curve parametrized by~$x : \R \to \R^n$ satisfying
+        Consider a \alert{curve parametrized} by~$x : \R \to \R^n$ satisfying
         \begin{equation*}
             h\big(x(t)\big) = h(\bar{x}) \quad \text{for all~$t \in \R$}, \quad \text{and} \quad x(0) = \bar{x}.
         \end{equation*}
@@ -231,9 +231,9 @@
 
     \medskip
 
-    For example, the~\alert{$\ell_p$-merit functions} are defined for~$x \in \R^n$ by
+    For example, the~\alert{$\ell_2$-merit functions} are defined for~$x \in \R^n$ by
     \begin{equation*}
-        \varphi_{\gamma}(x) = \obj(x) + \gamma \bigg( \sum_{i \in \iub} \posp{\con{i}(x)}^p + \sum_{i \in \ieq} \abs{\con{i}(x)}^p \bigg)^{1/p}, \quad \text{with~$\gamma \ge 0$}.
+        \varphi_{\gamma}(x) = \obj(x) + \gamma \sqrt{\sum_{i \in \iub} \posp{\con{i}(x)}^2 + \sum_{i \in \ieq} \abs{\con{i}(x)}^2}, \quad \text{with~$\gamma \ge 0$}.
     \end{equation*}
 
     \begin{block}{}
@@ -269,7 +269,7 @@
         \begin{enumerate}[<+(1)->]
             \item The step is \alert{rejected} by any \alert{monotonic} method for any~$\gamma \ge 0$.
             \item It is usually dealt with using \alert{second-order correction} mechanisms.
-            \item There exist merit functions that \alert{do not suffer} from the Maratos effect.
+            \item There exist merit functions that do \alert{not} suffer from the Maratos effect.
         \end{enumerate}
     \end{block}
 \end{frame}
@@ -277,23 +277,175 @@
 \section{Trust-region SQP methods}
 
 \begin{frame}
-    \frametitle{Title}
+    \frametitle{Trust-region SQP methods}
 
-	To do.
+	Given an iterate~$x^k \in \R^n$, let~$d^k$ be an approximate solution to
+    \begin{align*}
+        \min_{\norm{d} \le \Delta^k}    & \quad \obj(x^k) + \nabla \obj(x^k)^{\T} d + \frac{1}{2} d^{\T} H^k d\\
+        \text{s.t.}                     & \quad \con{i}(x^k) + \nabla \con{i}(x^k)^{\T} d \le 0, ~ i \in \iub,\\
+                                        & \quad \con{i}(x^k) + \nabla \con{i}(x^k)^{\T} d = 0, ~ i \in \ieq,
+    \end{align*}
+    with~$H^k \approx \nabla_{x, x}^2 \lag(x^k, \lambda^k)$ for some~$\lambda^k$ and~$\Delta^k > 0$.
+    Given~$\gamma \ge 0$, we set
+    \begin{empheq}[left={x^{k + 1} = \empheqlbrace}]{alignat*=2}
+        & x^k + d^k     && \quad \text{if~$\varphi_{\gamma}(x^k + d^k) < \varphi_{\gamma}(x^k)$,}\\
+        & x^k           && \quad \text{otherwise.}
+    \end{empheq}
+
+    \begin{block}{}
+        \begin{enumerate}[<+(1)->]
+            \item The \alert{trust-region radius} is \alert{updated} in a classical manner.
+            \item The \alert{penalty parameter} is maintained and \alert{never decreased}.
+        \end{enumerate}
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Composite-step approaches}
+
+    \begin{block}{The main difficulty}
+        The \alert{subproblem} may be \alert{infeasible}.
+    \end{block}
+
+    \medskip
+
+    We then \alert{decompose}~$d^k = n^k + t^k$, where
+    \begin{enumerate}
+        \item the \alert{normal step}~$n^k$ reduces the constraint violation, and
+        \item the \alert{tangential step}~$t^k$ reduces the objective function of the subproblem.
+    \end{enumerate}
+
+
+    \medskip
+
+    \begin{block}{}
+        \begin{enumerate}[<+(1)->]
+            \item We must ensure that~$x^k + d^k$ is \alert{not} more infeasible than~$x^k + n^k$.
+            \item \alert{Several approaches} exist for defining~$n^k$ and~$t^k$.
+            \item Some methods define~$n^k$ and~$t^k$ \alert{implicitly}.
+        \end{enumerate}
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{The Vardi approach}
+
+    We \alert{replace} the linear constraints of the subproblem by
+    \begin{empheq}[left=\empheqlbrace]{alignat*=1}
+        & \con{i}(x^k) + \nabla \con{i}(x^k)^{\T} d \le 0, ~ i \in \iub \setminus \mathcal{A}(x^k),\\
+        & \alpha \con{i}(x^k) + \nabla \con{i}(x^k)^{\T} d \le 0, ~ i \in \iub \cap \mathcal{A}(x^k),\\
+        & \alpha \con{i}(x^k) + \nabla \con{i}(x^k)^{\T} d = 0, ~ i \in \ieq,
+    \end{empheq}
+    for some~$\alpha \in [0, 1]$ so that it becomes feasible, where~$\mathcal{A}(x^k)$ is the \alert{active set}.
+
+    \medskip
+
+    \begin{block}{}
+        \begin{enumerate}[<+(1)->]
+            \item This method \alert{directly} sets~$d^k$ after determining~$\alpha$.
+            \item It can theoretically be \alert{expressed} as~$d^k = n^k + t^k$.
+            \item This form of the subproblem is \alert{\enquote{new}}.
+            \item Nick Gould referred to it as \alert{constraint relaxation}.
+        \end{enumerate}
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{The Byrd-Omojokun approach}
+
+    Let~$n^k$ be an approximate solution to
+    \begin{equation*}
+        \min_{\norm{d} \le \zeta \Delta^k} \sum_{i \in \iub} \posp{\con{i}(x^k) + \nabla \con{i}(x^k)^{\T} d}^2 + \sum_{i \in \ieq} \abs{\con{i}(x^k) + \nabla \con{i}(x^k)^{\T} d}^2,
+    \end{equation*}
+    for some~$\zeta \in (0, 1)$, and~$t^k$ be an approximate solution to
+    \begin{align*}
+        \min_{\norm{n^k + d} \le \Delta^k}  & \quad \big[ \nabla \obj(x^k) + H^k n^k \big]^{\T} d + \frac{1}{2} d^{\T} H^k d\\
+        \text{s.t.}                         & \quad \nabla \con{i}(x^k)^{\T} d \le \max \set{- \con{i}(x^k) - \nabla \con{i}(x^k)^{\T} n^k, 0}, ~ i \in \iub,\\
+                                            & \quad \nabla \con{i}(x^k)^{\T} d = 0, ~ i \in \ieq.
+    \end{align*}
+
+    \begin{block}{}
+        \begin{enumerate}[<+(1)->]
+            \item Both subproblems are \alert{feasible}.
+            \item This form of the normal subproblem is \alert{new}.
+            \item Nick Gould referred to it as \alert{constraint reduction}.
+        \end{enumerate}
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{The Celis-Dennis-Tapia (CDT) approach}
+
+    We \alert{replace} the linear constraints of the subproblem by
+    \begin{equation*}
+        \sum_{i \in \iub} \posp{\con{i}(x^k) + \nabla \con{i}(x^k)^{\T} d}^2 + \sum_{i \in \ieq} \abs{\con{i}(x^k) + \nabla \con{i}(x^k)^{\T} d}^2 \le \tau
+    \end{equation*}
+    for some~$\tau \ge 0$ so that it becomes feasible.
+
+    \medskip
+
+    \begin{block}{}
+        \begin{enumerate}[<+(1)->]
+            \item This method \alert{directly} sets~$d^k$ after determining~$\tau$.
+            \item It can theoretically be \alert{expressed} as~$d^k = n^k + t^k$.
+            \item The new subproblem is a \alert{QCQP} problem (NP-hard).
+            \item Nick Gould referred to it as \alert{constraint lumping}.
+        \end{enumerate}
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Final remarks}
+
+    There exist \alert{other methods} for solving the subproblem.
+    \begin{enumerate}
+        \item The Sequential~$\ell_p$-Quadratic Programming (S$\ell_p$QP).
+        \item The Sequential Linear-Quadratic Programming (SLQP).
+        \item The filter method.
+    \end{enumerate}
+
+    \bigskip
+
+    Many well-known \alert{software packages} are based on the SQP method.
+    \begin{enumerate}
+        \item SNOPT,
+        \item NLPQLP,
+        \item ETR,
+        \item CONDOR,
+        \item \dots
+    \end{enumerate}
 \end{frame}
 
 \section{Conclusion}
 
 \begin{frame}
-    \frametitle{Title}
+    \frametitle{Conclusion}
 
-	To do.
+	In this talk, we presented
+    \begin{enumerate}
+        \item the \alert{SQP} method,
+        \item some \alert{interpretations} of the method's subproblem,
+        \item the \alert{Maratos effect}, and
+        \item details on \alert{trust-region SQP} methods.
+    \end{enumerate}
+
+    \bigskip
+
+    In particular, the following results are new.
+    \begin{enumerate}
+        \item The \alert{interpretation} of the objective function of the SQP subproblem.
+        \item The \alert{Vardi and Byrd-Omojokun} subproblems.
+    \end{enumerate}
+
+    \bigskip
+
+    In the next talk, we will discuss the \alert{COBYQA} method.
 \end{frame}
 
-\begin{frame}[t,allowframebreaks]
-    \frametitle{References}
+% \begin{frame}[t,allowframebreaks]
+%     \frametitle{References}
 
-	\printbibliography
-\end{frame}
+% 	\printbibliography
+% \end{frame}
 
 \end{document}
