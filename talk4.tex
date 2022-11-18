@@ -85,7 +85,7 @@
 
     Given an iterate~$x^k \in \R^n$, let~$d^k$ be an approximate solution to
     \begin{align*}
-        \min_{d \in \R^n}   & \quad \obj(x^k) + \nabla \obj(x^k)^{\T} d + \frac{1}{2} d^{\T} \nabla^2 \obj(x^k) d\\
+        \min_{d \in \R^n}   & \quad \nabla \obj(x^k)^{\T} d + \frac{1}{2} d^{\T} \nabla^2 \obj(x^k) d\\
         \text{s.t.}         & \quad \con{i}(x^k) + \nabla \con{i}(x^k)^{\T} d \le 0, ~ i \in \iub,\\
                             & \quad \con{i}(x^k) + \nabla \con{i}(x^k)^{\T} d = 0, ~ i \in \ieq,
     \end{align*}
@@ -134,22 +134,23 @@
         The \alert{curvature information} of~$\set{\con{i}}_{i \in \iub \cup \ieq}$ is not represented.
     \end{block}
 
-    \medskip
+    \smallskip
 
     The \alert{Sequential Quadratic Programming} (SQP) method solves instead
     \begin{align*}
-        \min_{d \in \R^n}   & \quad \obj(x^k) + \nabla \obj(x^k)^{\T} d + \frac{1}{2} d^{\T} H^k d\\
+        \min_{d \in \R^n}   & \quad \nabla \obj(x^k)^{\T} d + \frac{1}{2} d^{\T} H^k d\\
         \text{s.t.}         & \quad \con{i}(x^k) + \nabla \con{i}(x^k)^{\T} d \le 0, ~ i \in \iub,\\
                             & \quad \con{i}(x^k) + \nabla \con{i}(x^k)^{\T} d = 0, ~ i \in \ieq,
     \end{align*}
     with~$H^k \approx \nabla_{x, x}^2 \lag(x^k, \lambda^k)$ for some~$\lambda^k$.
 
-    \medskip
+    \smallskip
 
     \begin{block}{}
         \begin{enumerate}[<+(1)->]
             \item It is as easy to \alert{implement} as before.
             \item It is similar to a \alert{Newton-Raphson} step for the \alert{KKT system}.
+            \item It is \alert{proposed} by \cite{Wilson_1963,Han_1976,Han_1977,Powell_1978a,Powell_1978b,Powell_1987}.
         \end{enumerate}
     \end{block}
 \end{frame}
@@ -268,6 +269,7 @@
     \begin{block}{}
         \begin{enumerate}[<+(1)->]
             \item The step is \alert{rejected} by any \alert{monotonic} method for any~$\gamma \ge 0$.
+            \item This was \alert{first observed} by \cite{Maratos_1978}.
             \item It is usually dealt with using \alert{second-order correction} mechanisms.
             \item There exist merit functions that do \alert{not} suffer from the Maratos effect.
         \end{enumerate}
@@ -281,7 +283,7 @@
 
 	Given an iterate~$x^k \in \R^n$, let~$d^k$ be an approximate solution to
     \begin{align*}
-        \min_{\norm{d} \le \Delta^k}    & \quad \obj(x^k) + \nabla \obj(x^k)^{\T} d + \frac{1}{2} d^{\T} H^k d\\
+        \min_{\norm{d} \le \Delta^k}    & \quad \nabla \obj(x^k)^{\T} d + \frac{1}{2} d^{\T} H^k d\\
         \text{s.t.}                     & \quad \con{i}(x^k) + \nabla \con{i}(x^k)^{\T} d \le 0, ~ i \in \iub,\\
                                         & \quad \con{i}(x^k) + \nabla \con{i}(x^k)^{\T} d = 0, ~ i \in \ieq,
     \end{align*}
@@ -298,6 +300,30 @@
             \item The \alert{penalty parameter} is maintained and \alert{never decreased}.
         \end{enumerate}
     \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Penalty parameter update}
+
+    Let~$(x^{\ast}, \lambda^{\ast})$ be a \alert{KKT pair}.
+
+    \medskip
+
+    \begin{block}{}
+        Under some \alert{regularity assumptions}, if
+        \begin{equation*}
+            \gamma \ge \norm{\lambda^{\ast}},
+        \end{equation*}
+        then~$x^{\ast}$ satisfies the \alert{second-order sufficient condition} for~$\min_{x \in \R^n} \, \varphi_{\gamma}(x)$.
+        Moreover, if~$\gamma > \norm{\lambda^{\ast}}$, the two sufficient conditions are \alert{equivalent}.
+    \end{block}
+
+    \medskip
+
+    When calculating~$\gamma^k$, we then ensure that
+    \begin{equation*}
+        \gamma^k \ge \max \set{\gamma^{k - 1}, \norm{\lambda^k}}.
+    \end{equation*}
 \end{frame}
 
 \begin{frame}
@@ -344,8 +370,9 @@
         \begin{enumerate}[<+(1)->]
             \item This method \alert{directly} sets~$d^k$ after determining~$\alpha$.
             \item It can theoretically be \alert{expressed} as~$d^k = n^k + t^k$.
+            \item It was originally \alert{proposed} by \cite{Vardi_1985}.
             \item This form of the subproblem is \alert{\enquote{new}}.
-            \item Nick Gould referred to it as \alert{constraint relaxation}.
+            % \item Nick Gould referred to it as \alert{constraint relaxation}.
         \end{enumerate}
     \end{block}
 \end{frame}
@@ -367,8 +394,9 @@
     \begin{block}{}
         \begin{enumerate}[<+(1)->]
             \item Both subproblems are \alert{feasible}.
+            \item It was originally \alert{proposed} by \cite{Byrd_1987,Omojokun_1989}.
             \item This form of the normal subproblem is \alert{new}.
-            \item Nick Gould referred to it as \alert{constraint reduction}.
+            % \item Nick Gould referred to it as \alert{constraint reduction}.
         \end{enumerate}
     \end{block}
 \end{frame}
@@ -388,8 +416,9 @@
         \begin{enumerate}[<+(1)->]
             \item This method \alert{directly} sets~$d^k$ after determining~$\tau$.
             \item It can theoretically be \alert{expressed} as~$d^k = n^k + t^k$.
-            \item The new subproblem is a \alert{QCQP} problem (NP-hard).
-            \item Nick Gould referred to it as \alert{constraint lumping}.
+            \item The new subproblem is a general \alert{piecewise QCQP} problem (NP-hard).
+            \item It was originally \alert{proposed} by \cite{Celis_1985,Celis_Dennis_Tapia_1985}.
+            % \item Nick Gould referred to it as \alert{constraint lumping}.
         \end{enumerate}
     \end{block}
 \end{frame}
@@ -397,16 +426,17 @@
 \begin{frame}
     \frametitle{Final remarks}
 
-    There exist \alert{other methods} for solving the subproblem.
+    There exist \alert{other methods} for solving the SQP subproblem, e.g.,
     \begin{enumerate}
-        \item The Sequential~$\ell_p$-Quadratic Programming (S$\ell_p$QP).
-        \item The Sequential Linear-Quadratic Programming (SLQP).
-        \item The filter method.
+        \item the Sequential~$\ell_p$-Quadratic Programming (S$\ell_p$QP),
+        \item the Sequential Linear-Quadratic Programming (SLQP),
+        \item the filter method,
+        \item \dots
     \end{enumerate}
 
     \bigskip
 
-    Many well-known \alert{software packages} are based on the SQP method.
+    Many well-known \alert{software packages} are based on the SQP method, e.g.,
     \begin{enumerate}
         \item SNOPT,
         \item NLPQLP,
@@ -434,7 +464,7 @@
     In particular, the following results are new.
     \begin{enumerate}
         \item The \alert{interpretation} of the objective function of the SQP subproblem.
-        \item The \alert{Vardi and Byrd-Omojokun} subproblems.
+        \item The \alert{Vardi} and \alert{Byrd-Omojokun} subproblems.
     \end{enumerate}
 
     \bigskip
@@ -442,10 +472,10 @@
     In the next talk, we will discuss the \alert{COBYQA} method.
 \end{frame}
 
-% \begin{frame}[t,allowframebreaks]
-%     \frametitle{References}
+\begin{frame}[t,allowframebreaks]
+    \frametitle{References}
 
-% 	\printbibliography
-% \end{frame}
+	\printbibliography
+\end{frame}
 
 \end{document}
