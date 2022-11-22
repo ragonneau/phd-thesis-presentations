@@ -13,7 +13,7 @@
 %
 % The Current Maintainer of this work is Tom M. Ragonneau.
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{polyu-presentation}[2022/10/12 PolyU presentation document class]
+\ProvidesClass{polyu-presentation}[2022/11/21 PolyU presentation document class]
 
 % Load beamer class as basis
 \PassOptionsToPackage{usenames,dvipsnames}{xcolor}
@@ -80,15 +80,16 @@
 \RequirePackage{amsfonts}
 \RequirePackage{amssymb}
 \RequirePackage{mathtools}
-\RequirePackage{dsfont}
 \RequirePackage{empheq}
+\RequirePackage[scr=boondoxo,bb=dsfontserif]{mathalfa}
 \DeclareMathOperator*{\argmin}{arg\,min}
 \DeclareMathOperator{\card}{card}
 \DeclareMathOperator{\conv}{conv}
 \DeclareMathOperator{\diam}{diam}
 \DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\sgn}{sgn}
 \newcommand{\eqdef}{\mathrel{\stackrel{\mathsf{def}}{=}}}
-\newcommand{\R}{\mathds{R}}
+\newcommand{\R}{\mathbb{R}}
 \newcommand{\T}{\mathsf{T}}
 \newcommand{\abs}[2][]{#1\lvert#2#1\rvert}
 \newcommand{\ceil}[2][]{#1\lceil#2#1\rceil}
